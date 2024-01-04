@@ -3,6 +3,9 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
+  background-image: url("../images/pexels-cottonbro-studio-3945317.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 #main {
@@ -12,9 +15,107 @@ body {
   left: 0;
   top: 0;
 }
-
 #app {
   width: 100%;
   height: 100%;
   display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  border: 1px solid #333;
+  box-shadow: 0px 0px 15px gray;
 }
+
+.Nav {
+    width: 100%;
+    background-color: rgba(123, 99, 99, 0.6);
+    display: flex;
+    flex-direction: column;
+}
+
+.Nav ul {
+    color: black;
+    font-weight: bold;
+    list-style-type: none;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: right;
+    margin-right: 10%;
+  }
+  
+  .Nav li {
+    padding: 1rem;
+    margin-right: 1rem;
+}
+  
+  .Nav li:hover, 
+  .Nav li:focus {
+    padding: 1rem;
+    border-radius: 20%;
+  }
+  
+  .Nav li a {
+    color: #fff;
+    text-decoration: none;
+  }
+  
+  .Nav li:hover, 
+  .Nav li:focus, 
+  .Nav li:hover a, 
+  .Nav li:focus a  {
+    background-color: #eee;
+    color: #333;
+  }
+  
+  .Nav li:hover a, 
+  .Nav li:focus a {
+    cursor: pointer;
+  }
+
+  
+
+
+/* CREATE GAME */
+.root {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  margin-top: 40px;
+}
+
+.paper {
+  padding: 3px;
+  /* width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center; */
+
+}
+
+.form {
+  display: 'flex';
+  flex-direction: 'column';
+  align-items: 'center';
+  gap: 2px;
+}
+
+.button_grid {
+    display: 'inline-flex',
+}
+
+
+
+
+/* homepage */
+#welcome {
+    margin: 5%;
+    align-items: center;
+}
+
+.stats {
+    padding: 5%;
+}
+

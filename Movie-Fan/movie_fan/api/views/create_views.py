@@ -7,14 +7,39 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 
-class CreateGameView(APIView):
+class GameView(APIView):
     serializer_class = CreateGameSerializer
+
+    def get(self, request, game_id=None, format=None):
+        if game_id is not None:
+            game = Game.objects.get(pk=game_id)
+            categories = game.categories.all()
+            category_data = CategorySerializer(categories, many=True).data
+
+            serializer = GameSerializer(game)
+            data = serializer.data
+            data['categories'] = category_data
+
+            return Response(data, status=status.HTTP_200_OK)
+        
+        games = Game.objects.all()
+        serializer = GameSerializer(games, many=True)
+        data = serializer.data
+
+        for game_data in data:
+            game = Game.objects.get(pk=game_data['id'])
+            categories = game.categories.all()
+            category_data = CategorySerializer(categories, many=True).data
+            game_data['categories'] = category_data
+
+        return Response(data, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
         if not self.request.session.exists(self.request.session.session_key):
             self.request.session.create()
 
         serializer = self.serializer_class(data=request.data)
+
 
         if serializer.is_valid():
             name = serializer.data.get('name')
@@ -27,9 +52,10 @@ class CreateGameView(APIView):
             game.categories.set(categories)
 
             return Response(GameSerializer(game).data, status=status.HTTP_201_CREATED)
-        return Response({'Bad Request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response({'Bad Request': "1q12"}, status=status.HTTP_400_BAD_REQUEST)
     
-class CreateCategoryView(APIView):
+class CategoryView(APIView):
     serializer_class = CreateCategorySerializer
 
     def post(self, request, format=None):
@@ -44,4 +70,6 @@ class CreateCategoryView(APIView):
             category = Category(name=name, description=description)
             category.save()
             return Response(CategorySerializer(category).data, status=status.HTTP_201_CREATED)
-        return Response({'Bad Request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'Bad Request': request}, status=status.HTTP_400_BAD_REQUEST)
+    
+
