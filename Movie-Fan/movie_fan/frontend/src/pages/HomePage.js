@@ -1,67 +1,36 @@
 import React, { Component } from "react";
-import GamePage from "./Game";
-import MoviePage from "./Movie";
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+// import GamePage from "./Game";
+// import MoviePage from "./Movie";
+// import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Container, Paper, Typography, Grid, List, ListItem, ListItemText } from "@material-ui/core";
 import GameCard from "../components/GameCard";
 
 export default function HomePage() {
-    // var user = localStorage.getItem('user');
     var player = {
         name: 'John Doe',
         my_games: [
             {
+                id: 1,
                 name: 'Game 1',
                 description: 'This is game 1',
                 categories: [
-                    {
-                        name: 'Category 1',
-                        description: 'This is category 1'
-                    },
-                    {
-                        name: 'Category 2',
-                        description: 'This is category 2'
-                    },
-                    {
-                        name: 'Category 3',
-                        description: 'This is category 3'
-                    }
+                    1, 2, 3
                 ]
             },
             {
+                id: 2,
                 name: 'Game 2',
                 description: 'This is game 2',
                 categories: [
-                    {
-                        name: 'Category 1',
-                        description: 'This is category 1'
-                    },
-                    {
-                        name: 'Category 2',
-                        description: 'This is category 2'
-                    }
+                    1, 2, 2
                 ]
             },
             {
+                id: 3,
                 name: 'Game 3',
                 description: 'This is game 3',
                 categories: [
-                    {
-                        name: 'Category 1',
-                        description: 'This is category 1'
-                    },
-                    {
-                        name: 'Category 2',
-                        description: 'This is category 2'
-                    },
-                    {
-                        name: 'Category 3',
-                        description: 'This is category 3'
-                    },
-                    {
-                        name: 'Category 4',
-                        description: 'This is category 4'
-                    }
+                    
                 ]
             }
         ],
@@ -75,8 +44,8 @@ export default function HomePage() {
         created_on: '2021-04-01T00:00:00Z'
 
     }
+
     return (
-        
         <Container className="root" maxWidth="md">
             <Paper className="paper" elevation={3}>
                 <Typography variant="h3" align="center" id="welcome">
@@ -110,12 +79,12 @@ export default function HomePage() {
                     </Grid>
                 </Grid>
             </Paper>
-
-            <Grid container spacing={1} justifyContent="center" elevation={player.my_games.length}>
-                {player.my_games.map((game, index) => 
-                <GameCard game={game} index={index}/>)}
-                
+            <Grid container elevation={player.my_games.length} className="gameCardContainer">
+                {player.my_games.map((game, index) =>
+                <GameCard key={index} game={game}/>)}
             </Grid>
+
+            
 
         </Container>
     );

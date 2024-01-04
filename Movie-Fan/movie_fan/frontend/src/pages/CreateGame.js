@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Container, Paper, Typography, TextField, Button, Grid } from '@material-ui/core';
-import { Add, Remove } from '@material-ui/icons';
+import { Add  } from '@material-ui/icons';
 
 export default function CreateGame() {
 
@@ -83,7 +83,7 @@ export default function CreateGame() {
     
     return (
         <Container className="root" maxWidth="md">
-        <Paper className="paper" elevation={3}>
+        <Paper className="paper" elevation={4}>
           <Typography variant="h5" align="center">
             Create Game
           </Typography>
@@ -133,31 +133,22 @@ export default function CreateGame() {
                     margin="normal"
                   />
                 </Grid>
-                <Grid item xs={12} sm={2} xl={2}>
-                    <Button
-                        variant="contained"
-                        color="secondary"
-                        onClick={handleAddCategory}
-                        margin="normal"
-                        startIcon={<Add />}
-                        width="100%"
-                        display="inline-flex"
-                    >
-                    </Button>
-                    <Button
-                        variant="contained"
+                <Button
                         color="default"
                         onClick={(e) => handleRemoveCategory(e, index)}
                         display="inline-flex"
                         margin="margin"
-                        startIcon={<Remove />}
-                        width="100%"
-                        >
+                        > Remove
                     </Button>
-                </Grid>
               </Grid>
               
             ))}
+
+            <Button
+                onClick={handleAddCategory}
+                startIcon={<Add />}
+            >Add Category
+              </Button>
             
             <Button
               type="submit"
