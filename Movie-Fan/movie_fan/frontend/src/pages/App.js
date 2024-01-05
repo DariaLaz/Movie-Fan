@@ -1,6 +1,5 @@
 import React, { Component, useState } from "react";
 import HomePage from "./HomePage";
-import GamePage from "./Game";
 import MoviePage from "./Movie";
 import { BrowserRouter as Router, Routes, Route, Redirect } from "react-router-dom";
 import ReactDOM from 'react-dom/client';
@@ -28,7 +27,6 @@ export default function App() {
                     (<Route path="*" element={<Login setIsAuth={setIsAuth}/>} />)}
 
                 <Route path="/games/:gameId" element={<GameDetails />} />
-                <Route path="game/" element={<GamePage />} />
                 <Route path="movie/" element={<MoviePage />} />
                 <Route path="create-game/" element={<CreateGame />} />
                 <Route path="join/" element={<Join />} />

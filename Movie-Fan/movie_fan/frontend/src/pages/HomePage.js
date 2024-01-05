@@ -55,6 +55,9 @@ export default function HomePage() {
                 </Grid>  
             </Paper>
             <Grid container elevation={player.my_games.length} className="gameCardContainer">
+            {/* <GameCard game={{name:"name", description:"descr", id:2}}/>
+            <GameCard game={{name:"name", description:"descr", id:2}}/>
+            <GameCard game={{name:"name", description:"descr", id:2}}/> */}
                 {player.my_games.map((game, index) =>
                 <GameCard key={index} game={game}/>)}
             </Grid>

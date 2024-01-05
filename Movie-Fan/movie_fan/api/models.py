@@ -55,6 +55,7 @@ class Category(models.Model):
     name = models.CharField(max_length=50, unique=True)
     description = models.TextField()
     submitions = models.ManyToManyField('Submition', related_name='categories')
+    mode = models.IntegerField(default=0) # 0 - not started yet, 1 - in progress uploading, 2 - in progress voting, 2 - finished 
 
     def __str__(self):
         return self.name

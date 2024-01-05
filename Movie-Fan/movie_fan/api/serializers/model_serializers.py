@@ -14,7 +14,7 @@ class PlayerSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ('id', 'name', 'description', 'submitions')
+        fields = ('id', 'name', 'description', 'submitions', 'mode')
 
 class SubmitionSerializer(serializers.ModelSerializer):
     class Meta:
