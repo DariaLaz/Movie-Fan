@@ -1,7 +1,7 @@
 import React, { Component, useState } from "react";
 import HomePage from "./HomePage";
 import MoviePage from "./Movie";
-import { BrowserRouter as Router, Routes, Route, Redirect } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Redirect, useNavigate } from "react-router-dom";
 import ReactDOM from 'react-dom/client';
 import CreateGame from "./CreateGame";
 import Join from "./JoinGame";
@@ -15,8 +15,9 @@ export default function App() {
 
     return (
         <div id='app'>
-        <Nav isAuth={isAuth} setIsAuth={setIsAuth}/>
+        
         <Router>
+            <Nav isAuth={isAuth} setIsAuth={setIsAuth}/>
             <Routes>
                 {/* {!isAuth && (<Redirect to='login/'/>)} */}
                 

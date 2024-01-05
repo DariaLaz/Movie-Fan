@@ -10,7 +10,7 @@ export default function GameDetails() {
 
 
     useEffect(() => {
-        fetch(`/api/games/?game_id=${gameId}`)
+        fetch(`/api/games/?game_id=${gameId}&username=${localStorage.getItem('username')}`)
             .then(response => {
                 if (!response.ok) {
                     alert(`HTTP error! Status: ${response.status}`);

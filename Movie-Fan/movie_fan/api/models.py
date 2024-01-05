@@ -48,6 +48,23 @@ class Player(models.Model):
     my_games = models.ManyToManyField('Game', related_name='players', default=set)
     score = models.ForeignKey(PlayerScore, on_delete=models.CASCADE, null=True)
 
+    def update_created(self):
+        if self.score is None:
+            self.score = PlayerScore.objects.create()
+        self.score.created += 1
+        self.score.save()
+    def update_score(self, place=0):
+        if self.score is None:
+            self.score = PlayerScore.objects.create()
+        if place == 1:
+            self.score.first_place += 1
+        elif place == 2:
+            self.score.second_place += 1
+        elif place == 3:
+            self.score.third_place += 1
+        self.score.all_games += 1
+        self.score.save()
+
     def __str__(self):
         return self.name
     
@@ -71,9 +88,10 @@ class Submition(models.Model):
 class Movie(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField()
-    year = models.IntegerField()
-    genre = models.CharField(max_length=50)
-    tumbnail = models.CharField(max_length=100)
+    rating = models.FloatField(default=0)
+    link = models.CharField(max_length=300)
+    genre = models.CharField(max_length=50) #category in sarpApi
+    tumbnail = models.CharField(max_length=300)
 
     def __str__(self):
         return self.title

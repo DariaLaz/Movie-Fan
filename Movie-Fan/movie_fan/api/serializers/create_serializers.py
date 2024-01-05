@@ -30,3 +30,11 @@ class ScoreSerializer(serializers.ModelSerializer):
     class Meta:
         model = PlayerScore
         fields = '__all__'
+
+
+class JoinGameSerializer(serializers.Serializer):
+    code = serializers.CharField(max_length=6)
+    username = serializers.CharField(max_length=50)
+    
+
+    

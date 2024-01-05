@@ -1,16 +1,18 @@
-from django.shortcuts import render
-from rest_framework import generics, status
+from rest_framework.views import APIView
 from ..serializers.create_serializers import *
 from ..serializers.model_serializers import *
 from ..serializers.auth_serializers import *
-from ..models import Game, Movie, Player, Category, Submition, PlayerScore
-from rest_framework.views import APIView
+from ..models import Game
+from ..models import Player
+from ..models import PlayerScore
+
+from ..models import Category
 from rest_framework.response import Response
-from rest_framework.authtoken.models import Token
+from rest_framework import status
 from django.contrib.auth.models import User
-from django.contrib.auth import logout
 
 class GameView(APIView):
+
     serialize_class = GameSerializer
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -20,36 +22,47 @@ class GameView(APIView):
         else:
             return GameSerializer
 
-    def put(self, request):
-        self.serializer_class = UpdateGameSerializer
+    # def put(self, request):
+    #     self.serializer_class = UpdateGameSerializer
 
-        code = request.data.get('code')
-        username = request.data.get('username')
+    #     code = request.data.get('code')
+    #     username = request.data.get('username')
             
-        if code and username:
-            player = Player.objects.get(name=username)
-            game = Game.objects.get(code=code)
-            if game.mode != 0:
-                return Response({'Bad Request': "1q12"}, status=status.HTTP_400_BAD_REQUEST)
+    #     if code and username:
+    #         player = Player.objects.get(name=username)
+    #         game = Game.objects.get(code=code)
+    #         if game.mode != 0:
+    #             return Response({'Bad Request': "1q12"}, status=status.HTTP_400_BAD_REQUEST)
             
-            game.participants.add(player)
-            serializer = self.serializer_class(game, data=request.data, partial=True)
-            if serializer.is_valid():
-                serializer.save()
-                game.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
+    #         game.participants.add(player)
+    #         serializer = self.serializer_class(game, data=request.data, partial=True)
+    #         if serializer.is_valid():
+    #             serializer.save()
+    #             game.save()
+    #             return Response(serializer.data, status=status.HTTP_200_OK)
             
         
-        return Response({'Bad Request': "gygh"}, status=status.HTTP_400_BAD_REQUEST)
+        # return Response({'Bad Request': "gygh"}, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request, format=None):
         self.serializer_class = GameSerializer
         game_id = request.GET.get('game_id')
+        username = request.GET.get('username')
+
         if game_id is not None:
             try:
                 game = Game.objects.get(pk=game_id)
+                player = Player.objects.get(name=username)
+
                 categories = game.categories.all()
                 category_data = CategorySerializer(categories, many=True).data
+
+                for category in category_data:
+                    #  0 - waiting for submitions, 1 - waiting for votes, 2 - finished, 3 - waiting for submition, 4 - waiting for vote, 5 - finished 
+                    if category['mode'] == 1 and category.submitions.filter(player=player).exists():
+                       category['mode'] = 4
+                    elif category['mode'] == 2 and category.votes.filter(player=player).exists():
+                        category['mode'] = 5                        
 
                 serializer = GameSerializer(game)
                 data = serializer.data
@@ -94,16 +107,49 @@ class GameView(APIView):
             game.save()
             game.participants.add(participant)
             game.categories.set(categories)
+            participant.my_games.add(game)
+            participant.score.all_games += 1
+            participant.score.created += 1
+            participant.score.save()
+            participant.save()
+            game.save()
 
             return Response(GameSerializer(game).data, status=status.HTTP_201_CREATED)
         
         return Response({'Bad Request': "1q12"}, status=status.HTTP_400_BAD_REQUEST)
     
-class JoinGame(APIView):
+class JoinGameView(APIView):
     
-    def post(self, request, code=None):
+    def post(self, request, format=None):
+
         if not self.request.session.exists(self.request.session.session_key):
             self.request.session.create()
+
+        serializer = JoinGameSerializer(data=request.data)
+        if serializer.is_valid():
+            code = serializer.data.get('code')
+            username = serializer.data.get('username')
+            if code and username:
+                player = None
+                game = None
+                try:
+                    player = Player.objects.get(name=username)
+                    game = Game.objects.get(code=code)
+                except:
+                    return Response({'Bad Request': "1q12"}, status=status.HTTP_400_BAD_REQUEST)
+                
+                if game.mode != 0:
+                    return Response({'Bad Request': "1q12"}, status=status.HTTP_400_BAD_REQUEST)
+                
+                if game.participants.filter(name=username).exists():
+                    return Response('Alreadyy in', status=status.HTTP_400_BAD_REQUEST)
+                
+                game.participants.add(player)
+                player.my_games.add(game)
+                player.update_score()
+                # player.score.all_games += 1
+                return Response(GameSerializer(game).data, status=status.HTTP_200_OK)
+
 
         if code is not None:
             res_game = Game.objects.filter(code=code)
@@ -130,39 +176,7 @@ class CategoryView(APIView):
         return Response({'Bad Request': request}, status=status.HTTP_400_BAD_REQUEST)
     
 
-class LogoutView(APIView):
-    def post(self, request):
-        logout(request)
-        return Response({"detail": "Successfully logged out"}, status=status.HTTP_200_OK)
 
-    
-class LoginView(APIView):
-    serializer_class = UserLoginSerializer
-    def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data, context={'request': request})
-        if serializer.is_valid():
-            
-            user = User.objects.get(username=serializer.data.get('username'))
-            token, created = Token.objects.get_or_create(user=user)
-            return Response({
-            'token': token.key,
-            'username': serializer.data.get('username'),
-            'user_id': user.id
-            }, status=status.HTTP_200_OK)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        
-    
-class RegisterView(APIView):
-    serializer_class = UserRegisterSerializer
-    
-    def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class PlayersView(APIView):
     serializer_class = CreatePlayerSerializer
@@ -231,10 +245,16 @@ class PlayersView(APIView):
 class ScoreView(APIView):
     serializer_class = ScoreSerializer
     def get(self, request, format=None):
-        id = request.GET.get('id')
-        try:
-            score = PlayerScore.objects.get(id=id)
-            return Response(ScoreSerializer(score).data, status=status.HTTP_200_OK)
-        except:
-            return Response("Not found", status=status.HTTP_404_NOT_FOUND)
-
+        self.serializer_class = ScoreSerializer
+        player_id = request.GET.get('player_id')
+        if player_id is not None:
+            try:
+                player = Player.objects.get(pk=player_id)
+                serializer = ScoreSerializer(player.score)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            except:
+                return Response("Not found", status=status.HTTP_404_NOT_FOUND)
+        
+        scores = PlayerScore.objects.all()
+        serializer = ScoreSerializer(scores, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

@@ -1,12 +1,13 @@
 import React, { Component, useState } from "react";
 import {Grid, Typography, Button, TextField, Paper, Container} from "@material-ui/core";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import getCookie from "../helpers.js"
 
 
 
 export default function Join() {
     const [code, setCode] = useState("");
+    const navigate = useNavigate();
 
     const handleCodeChange = (e) => {
         const { value } = e.target;
@@ -16,9 +17,9 @@ export default function Join() {
     const handleEnterGame = (e) => {
         const csrftoken = getCookie('csrftoken');
         (async () => {
-            await fetch('/api/games/', 
+            await fetch('/api/join/', 
             {
-                method: 'PUT',
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json',
                 'X-CSRFToken': csrftoken,},
                 body: JSON.stringify({
@@ -26,7 +27,14 @@ export default function Join() {
                     username: localStorage.getItem("username")
                 })
             })
-            .then(response => response.json()).then(data => console.log(data));
+            .then(response => {
+                if (response.ok) {
+                    response.json().then(data =>navigate(`/games/${data.id}`) );
+                }
+                else {
+                    alert("Invalid code")
+                }
+            });
         })()
     }
 
