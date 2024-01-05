@@ -1,31 +1,25 @@
-import React, { Component } from "react";
-// import GamePage from "./Game";
-// import MoviePage from "./Movie";
-// import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { Component, useState, useEffect } from "react";
+import { Redirect } from 'react-router-dom';
+
 import { Container, Paper, Typography, Grid, List, ListItem, ListItemText } from "@material-ui/core";
 import GameCard from "../components/GameCard";
-import { redirect } from "react-router-dom";
 
 export default function HomePage() {
-    if(!localStorage.getItem('authToken')){
-        redirect('/login')
+    var [player, setPlayer] = useState(null);
+
+    useEffect(() => {
+        fetch(`/api/players/?name=${localStorage.getItem('username')}`).then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        }).then(data => setPlayer(data))
+    }, []);
+
+    if (!player) {
+        return <p>Loading...</p>;
     }
-
-    var player = {}
-        async function getPlayer() {
-            await fetch('/api/players', 
-            {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    username: localStorage.getItem('username')
-                }).then(response => response.json())
-                .then(data => player = data)
-            })
-        }
-
-        getPlayer()
-
+    
     return (
         <Container className="root" maxWidth="md">
             <Paper className="paper" elevation={3}>
@@ -51,14 +45,14 @@ export default function HomePage() {
                         <Typography variant="h6">Your Games:</Typography>
                         <List>
                             <ListItem>
-                                <ListItemText primary={`Created Games: ${player.score.created_games}`}/>
+                                <ListItemText primary={`Created Games: ${player.score.created}`}/>
                             </ListItem>
                             <ListItem>
                                 <ListItemText primary={`All Games: ${player.score.all_games}`}/>
                             </ListItem>
                         </List>
                     </Grid>
-                </Grid>
+                </Grid>  
             </Paper>
             <Grid container elevation={player.my_games.length} className="gameCardContainer">
                 {player.my_games.map((game, index) =>

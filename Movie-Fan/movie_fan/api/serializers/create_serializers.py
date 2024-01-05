@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from ..models import Game, Player, Category, Submition, Movie
+from ..models import PlayerScore
 
 
 class CreateGameSerializer(serializers.ModelSerializer):
@@ -24,3 +25,8 @@ class UpdateGameSerializer(serializers.ModelSerializer):
     class Meta:
         model = Game
         fields = ('code',)
+
+class ScoreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PlayerScore
+        fields = '__all__'

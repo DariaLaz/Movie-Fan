@@ -22,6 +22,7 @@ class Game(models.Model):
     categories = models.ManyToManyField('Category', related_name='games')
     mode = models.IntegerField(default=0) # 0 - waiting for players, 1 - in progress, 2 - finished
 
+
     def get_results(self):
         submitions = Submition.objects.filter(game=self)
         results = {}
@@ -39,11 +40,12 @@ class PlayerScore(models.Model):
     second_place = models.IntegerField(default=0)
     third_place = models.IntegerField(default=0)
     all_games = models.IntegerField(default=0)
+    created = models.IntegerField(default=0)
 
 class Player(models.Model):
     user_id = models.CharField(max_length=50, unique=True, default='')
     name = models.CharField(max_length=50, unique=True)
-    my_games = models.ManyToManyField('Game', related_name='players')
+    my_games = models.ManyToManyField('Game', related_name='players', default=set)
     score = models.ForeignKey(PlayerScore, on_delete=models.CASCADE, null=True)
 
     def __str__(self):

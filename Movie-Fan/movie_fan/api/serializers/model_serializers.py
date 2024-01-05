@@ -9,7 +9,7 @@ class GameSerializer(serializers.ModelSerializer):
 class PlayerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Player
-        fields = ('id', 'name', 'score')
+        fields = ('id', 'name', 'score', 'my_games')
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
