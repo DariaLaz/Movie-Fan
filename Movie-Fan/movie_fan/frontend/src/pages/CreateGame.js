@@ -71,6 +71,7 @@ export default function CreateGame() {
             name: gameData.name,
             description: gameData.description,
             categories: updatedCategories,
+            host: localStorage.getItem('username')
         };
 
         const requestOptions = {

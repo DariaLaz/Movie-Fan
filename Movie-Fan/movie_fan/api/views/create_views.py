@@ -14,9 +14,39 @@ from django.contrib.auth.models import User
 from django.contrib.auth import logout
 
 class GameView(APIView):
-    serializer_class = CreateGameSerializer
+    serialize_class = GameSerializer
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return CreateGameSerializer
+        elif self.request.method == 'PUT':
+            return UpdateGameSerializer
+        else:
+            return GameSerializer
+
+    def put(self, request):
+        self.serializer_class = UpdateGameSerializer
+
+        code = request.data.get('code')
+        username = request.data.get('username')
+            
+        if code and username:
+            player = Player.objects.get(name=username)
+            game = Game.objects.get(code=code)
+            if game.mode != 0:
+                return Response({'Bad Request': "1q12"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            game.participants.add(player)
+            serializer = self.serializer_class(game, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                game.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            
+        
+        return Response({'Bad Request': "gygh"}, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request, game_id=None, format=None):
+        self.serializer_class = GameSerializer
         if game_id is not None:
             game = Game.objects.get(pk=game_id)
             categories = game.categories.all()
@@ -42,6 +72,7 @@ class GameView(APIView):
         return Response(data, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
+        self.serializer_class = self.get_serializer_class()
         
         if not self.request.session.exists(self.request.session.session_key):
             self.request.session.create()
@@ -53,10 +84,14 @@ class GameView(APIView):
             name = serializer.data.get('name')
             description = serializer.data.get('description')
             categories = serializer.data.get('categories')
-            host = self.request.session.session_key
+            host = serializer.data.get('host')
+
+            participant = Player.objects.get(name=host)
+
             game = Game(name=name, description=description, 
-            host=host)
+            host=host, mode=0)
             game.save()
+            game.participants.add(participant)
             game.categories.set(categories)
 
             return Response(GameSerializer(game).data, status=status.HTTP_201_CREATED)
@@ -134,16 +169,16 @@ class RegisterView(APIView):
 class PlayersView(APIView):
     serializer_class = CreatePlayerSerializer
 
-    def get(self, request, player_id=None, username=None, format=None):
+    def get(self, request, player_id=None, name=None, format=None):
         serializer_class = PlayerSerializer
         if player_id is not None:
             player = Player.objects.get(pk=player_id)
             serializer = PlayerSerializer(player)
             return Response(serializer.data, status=status.HTTP_200_OK)
         
-        if username is not None:
+        if name is not None:
             players = Player.objects.all()
-            player = players.filter(lambda x: x.name == username)
+            player = players.filter(lambda x: x.name == name)
             if len(player) == 0:
                 return Response("Not found", status=status.HTTP_404_NOT_FOUND)
             return Response(player[0], status=status.HTTP_200_OK)

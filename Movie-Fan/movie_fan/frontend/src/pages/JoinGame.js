@@ -1,6 +1,8 @@
 import React, { Component, useState } from "react";
 import {Grid, Typography, Button, TextField, Paper, Container} from "@material-ui/core";
 import { Link } from "react-router-dom";
+import getCookie from "../helpers.js"
+
 
 
 export default function Join() {
@@ -11,8 +13,21 @@ export default function Join() {
         setCode(value);
     };
 
-    const handleEnterRoom = (e) => {
-
+    const handleEnterGame = (e) => {
+        const csrftoken = getCookie('csrftoken');
+        (async () => {
+            await fetch('/api/games/', 
+            {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,},
+                body: JSON.stringify({
+                    code: code,
+                    username: localStorage.getItem("username")
+                })
+            })
+            .then(response => response.json()).then(data => console.log(data));
+        })()
     }
 
     return (
@@ -36,9 +51,9 @@ export default function Join() {
                     <Button
                         variant="contained"
                         color="primary"
-                        onClick={handleEnterRoom}
+                        onClick={handleEnterGame}
                     >
-                        Enter Room
+                        Enter Game
                     </Button>
                     </Grid>
                 </Grid>

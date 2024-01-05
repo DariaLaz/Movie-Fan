@@ -6,7 +6,7 @@ class CreateGameSerializer(serializers.ModelSerializer):
     class Meta:
         model = Game
 
-        fields = ('name', 'description', 'categories')
+        fields = ('name', 'description', 'categories', 'host')
         read_only_fields = ('code', 'created_at')
 
 class CreateCategorySerializer(serializers.ModelSerializer):
@@ -19,3 +19,8 @@ class CreatePlayerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Player
         fields = ('name',)
+
+class UpdateGameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Game
+        fields = ('code',)

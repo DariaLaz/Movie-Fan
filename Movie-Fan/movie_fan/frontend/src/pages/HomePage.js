@@ -64,9 +64,6 @@ export default function HomePage() {
                 {player.my_games.map((game, index) =>
                 <GameCard key={index} game={game}/>)}
             </Grid>
-
-            
-
         </Container>
     );
 }
