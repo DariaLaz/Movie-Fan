@@ -4,46 +4,27 @@ import React, { Component } from "react";
 // import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Container, Paper, Typography, Grid, List, ListItem, ListItemText } from "@material-ui/core";
 import GameCard from "../components/GameCard";
+import { redirect } from "react-router-dom";
 
 export default function HomePage() {
-    var player = {
-        name: 'John Doe',
-        my_games: [
-            {
-                id: 1,
-                name: 'Game 1',
-                description: 'This is game 1',
-                categories: [
-                    1, 2, 3
-                ]
-            },
-            {
-                id: 2,
-                name: 'Game 2',
-                description: 'This is game 2',
-                categories: [
-                    1, 2, 2
-                ]
-            },
-            {
-                id: 3,
-                name: 'Game 3',
-                description: 'This is game 3',
-                categories: [
-                    
-                ]
-            }
-        ],
-        score: {
-            first_place: 1,
-            second_place: 1,
-            third_place: 0,
-            all_games: 2,
-            created_games: 0
-        },
-        created_on: '2021-04-01T00:00:00Z'
-
+    if(!localStorage.getItem('authToken')){
+        redirect('/login')
     }
+
+    var player = {}
+        async function getPlayer() {
+            await fetch('/api/players', 
+            {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: localStorage.getItem('username')
+                }).then(response => response.json())
+                .then(data => player = data)
+            })
+        }
+
+        getPlayer()
 
     return (
         <Container className="root" maxWidth="md">

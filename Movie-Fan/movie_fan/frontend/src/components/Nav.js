@@ -1,8 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Grid, Toolbar, Typography, Button } from "@material-ui/core";
+import Logout from "./Logout";
 
-export default function Nav() {
+export default function Nav({isAuth, setIsAuth}) {
+    
     return (
     //   <Toolbar className="Nav">
     //     <Typography variant="h6">MovieFan</Typography>
@@ -20,6 +22,15 @@ export default function Nav() {
                 <li>bhjkjh</li>
                 <li>rdsf</li>
                 <li>rdsf</li>
+                {isAuth && (
+                    <li><Logout setIsAuth={setIsAuth}/></li>
+                )}
+                {!isAuth && (
+                        <li><Button>Login</Button></li>
+                )}
+                 {!isAuth && (
+                        <li><Button>Register</Button></li>
+                )}
 
                 {/* <li><Link to="/">Home</Link></li>*/}
             </ul>

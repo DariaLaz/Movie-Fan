@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useState } from "react";
 import HomePage from "./HomePage";
 import GamePage from "./Game";
 import MoviePage from "./Movie";
@@ -9,13 +9,14 @@ import Join from "./JoinGame";
 import Register from "./Register";
 import Login from "./Login";
 import GameDetails from "./GameDetails";
-import Header from "../components/Header";
 import Nav from "../components/Nav";
 
 export default function App() {
+    const [isAuth, setIsAuth] = useState(localStorage.getItem('authToken'))
+
     return (
         <div id='app'>
-        <Nav />
+        <Nav isAuth={isAuth} setIsAuth={setIsAuth}/>
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={<HomePage />} />
@@ -24,9 +25,8 @@ export default function App() {
                 <Route path="movie/" element={<MoviePage />} />
                 <Route path="create-game/" element={<CreateGame />} />
                 <Route path="join/" element={<Join />} />
-                <Route path="register/" element={<Register />} />
-                <Route path="login/" element={<Login />} />
-                
+                <Route path="register/" element={<Register setIsAuth={setIsAuth} />} />
+                <Route path="login/" element={<Login setIsAuth={setIsAuth}/>} />
             </Routes>
         </BrowserRouter>
         </div>

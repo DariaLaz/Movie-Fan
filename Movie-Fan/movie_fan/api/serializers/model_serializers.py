@@ -25,3 +25,8 @@ class MovieSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movie
         fields = ('id', 'title', 'description', 'year', 'genre', 'tumbnail')
+
+# class UserRegisterSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Player
+#         fields = ('id', 'name', 'password')

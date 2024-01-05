@@ -41,6 +41,7 @@ class PlayerScore(models.Model):
     all_games = models.IntegerField(default=0)
 
 class Player(models.Model):
+    user_id = models.CharField(max_length=50, unique=True, default='')
     name = models.CharField(max_length=50, unique=True)
     my_games = models.ManyToManyField('Game', related_name='players')
     score = models.ForeignKey(PlayerScore, on_delete=models.CASCADE, null=True)

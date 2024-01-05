@@ -6,6 +6,7 @@ class GameSerializer(serializers.ModelSerializer):
         model = Game
         fields = ('id', 'code', 'host','created_at', 'name', 'description', 'participants', 'categories')
 
+
 class CreateGameSerializer(serializers.ModelSerializer):
     class Meta:
         model = Game
