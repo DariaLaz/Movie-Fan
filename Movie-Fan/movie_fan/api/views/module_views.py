@@ -22,29 +22,31 @@ class GameView(APIView):
         else:
             return GameSerializer
 
-    # def put(self, request):
-    #     self.serializer_class = UpdateGameSerializer
 
-    #     code = request.data.get('code')
-    #     username = request.data.get('username')
+    def put(self, request):
+        """Put request are used to start / finish game - change game mode"""
+        self.serializer_class = GameSerializer
+
+        game_id = request.data.get('game_id')
             
-    #     if code and username:
-    #         player = Player.objects.get(name=username)
-    #         game = Game.objects.get(code=code)
-    #         if game.mode != 0:
-    #             return Response({'Bad Request': "1q12"}, status=status.HTTP_400_BAD_REQUEST)
-            
-    #         game.participants.add(player)
-    #         serializer = self.serializer_class(game, data=request.data, partial=True)
-    #         if serializer.is_valid():
-    #             serializer.save()
-    #             game.save()
-    #             return Response(serializer.data, status=status.HTTP_200_OK)
-            
-        
-        # return Response({'Bad Request': "gygh"}, status=status.HTTP_400_BAD_REQUEST)
+        if game_id is not None:
+            try:
+                game = Game.objects.get(pk=game_id)
+                if game.mode == 0:
+                    game.start()
+                    game.unlock_next_categories()
+                elif game.mode == 1:
+                    game.finish()
+                serializer = GameSerializer(game, data=request.data, partial=True)
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(serializer.data, status=status.HTTP_200_OK)
+            except:
+                return Response("Not found", status=status.HTTP_404_NOT_FOUND)
+        return Response({'Bad Request': ""}, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request, format=None):
+        """Get request are used to get all games or specific game if game_id is provided in request params the game is returned"""
         self.serializer_class = GameSerializer
         game_id = request.GET.get('game_id')
         username = request.GET.get('username')
@@ -58,11 +60,12 @@ class GameView(APIView):
                 category_data = CategorySerializer(categories, many=True).data
 
                 for category in category_data:
-                    #  0 - waiting for submitions, 1 - waiting for votes, 2 - finished, 3 - waiting for submition, 4 - waiting for vote, 5 - finished 
-                    if category['mode'] == 1 and category.submitions.filter(player=player).exists():
-                       category['mode'] = 4
-                    elif category['mode'] == 2 and category.votes.filter(player=player).exists():
-                        category['mode'] = 5                        
+                    #  0 - waiting for submitions, 1 - waiting for votes, 2 - finished, 3 - waiting for submition, 4 - waiting for vote, 5 - finished
+                    print(category)
+                    # if category['mode'] == 1 and category['submitions'].any(lambda id: id == player.id):
+                    #    category['mode'] = 4
+                    # elif category['mode'] == 2 and category['votes'].any(lambda id: id == player.id):
+                    #     category['mode'] = 5                        
 
                 serializer = GameSerializer(game)
                 data = serializer.data
@@ -106,6 +109,12 @@ class GameView(APIView):
             host=host, mode=0)
             game.save()
             game.participants.add(participant)
+
+            for category in categories:
+                cat = Category.objects.get(pk=category)    
+                cat.game_id = game.id
+                cat.save()
+
             game.categories.set(categories)
             participant.my_games.add(game)
             participant.score.all_games += 1
@@ -174,6 +183,21 @@ class CategoryView(APIView):
             category.save()
             return Response(CategorySerializer(category).data, status=status.HTTP_201_CREATED)
         return Response({'Bad Request': request}, status=status.HTTP_400_BAD_REQUEST)
+    
+    def get(self, request, format=None):
+        self.serializer_class = CategorySerializer
+        category_id = request.GET.get('category_id')
+        if category_id is not None:
+            try:
+                category = Category.objects.get(pk=category_id)
+                serializer = CategorySerializer(category)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            except:
+                return Response("Not found", status=status.HTTP_404_NOT_FOUND)
+        
+        categories = Category.objects.all()
+        serializer = CategorySerializer(categories, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
 
 

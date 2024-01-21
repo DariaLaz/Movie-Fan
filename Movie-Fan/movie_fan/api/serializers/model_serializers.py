@@ -4,7 +4,7 @@ from ..models import Game, Player, Category, Submition, Movie
 class GameSerializer(serializers.ModelSerializer):
     class Meta:
         model = Game
-        fields = ('id', 'code', 'host','created_at', 'name', 'description', 'participants', 'categories')
+        fields = ('id', 'code', 'host','created_at', 'name', 'description', 'participants', 'categories', 'mode')
 
 class PlayerSerializer(serializers.ModelSerializer):
     class Meta:
@@ -14,7 +14,7 @@ class PlayerSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ('id', 'name', 'description', 'submitions', 'mode')
+        fields = ('id', 'name', 'description', 'submitions', 'mode', 'game_id')
 
 class SubmitionSerializer(serializers.ModelSerializer):
     class Meta:

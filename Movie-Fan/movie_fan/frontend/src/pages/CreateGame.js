@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { Container, Paper, Typography, TextField, Button, Grid } from '@material-ui/core';
 import { Add  } from '@material-ui/icons';
+import { useNavigate } from 'react-router-dom';
 
 export default function CreateGame() {
-
+  const navigate = useNavigate();
     const [gameData, setGameData] = useState({
       name: '',
       description: '',
@@ -45,7 +46,8 @@ export default function CreateGame() {
       }));
     };
     const handleRemoveCategory = (e, index) => {
-        const updatedCategories = [...gameData.categories].splice(index, 1);
+      console.log(index)
+        const updatedCategories =  [...gameData.categories.slice(0, index), ...gameData.categories.slice(index + 1)]
 
         setGameData((prevData) => ({
             ...prevData,
@@ -79,7 +81,9 @@ export default function CreateGame() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(gameDataWithCategories)
         };
-        await fetch('/api/games/', requestOptions).then(response => response.json()).then(data => console.log(data));
+        var id = -1;
+        await fetch('/api/games/', requestOptions).then(response => response.json()).then(data => id = data.id);
+        navigate(`/game/${id}`);
     };
     
     return (

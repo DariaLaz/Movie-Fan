@@ -1,6 +1,5 @@
 import React, { Component, useState } from "react";
 import HomePage from "./HomePage";
-import MoviePage from "./Movie";
 import { BrowserRouter as Router, Routes, Route, Redirect, useNavigate } from "react-router-dom";
 import ReactDOM from 'react-dom/client';
 import CreateGame from "./CreateGame";
@@ -9,6 +8,7 @@ import Register from "./Register";
 import Login from "./Login";
 import GameDetails from "./GameDetails";
 import Nav from "../components/Nav";
+import UploadMovie from "./UploadMovie";
 
 export default function App() {
     const [isAuth, setIsAuth] = useState(localStorage.getItem('authToken'))
@@ -28,7 +28,8 @@ export default function App() {
                     (<Route path="*" element={<Login setIsAuth={setIsAuth}/>} />)}
 
                 <Route path="/games/:gameId" element={<GameDetails />} />
-                <Route path="movie/" element={<MoviePage />} />
+                <Route path="/upload/:categoryId" element={<UploadMovie />} />
+                {/* <Route path="movie/" element={<MoviePage />} /> */}
                 <Route path="create-game/" element={<CreateGame />} />
                 <Route path="join/" element={<Join />} />
                 <Route path="*" element={<HomePage />} />

@@ -12,4 +12,5 @@ urlpatterns = [
     path('join/', index),
     path('register/', index),
     path('login/', index),
+    path('upload/<int:categoryId>', index),
 ]

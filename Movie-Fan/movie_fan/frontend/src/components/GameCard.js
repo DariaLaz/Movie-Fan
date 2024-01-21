@@ -3,7 +3,6 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 export default function GameCard({game}) {
-    console.log(game);
     return (
 
         <Grid item xs={12} sm={5} className="gameCard" >
