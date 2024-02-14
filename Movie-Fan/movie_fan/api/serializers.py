@@ -25,15 +25,16 @@ class CategorySerializer(serializers.ModelSerializer):
 class SubmitionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Submition
-        fields = ('id', 'player', 'movie')
+        fields = ('id', 'player', 'movie', 'points', 'category')
 
 class MovieSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movie
-        fields = ('id', 'title', 'description', 'year', 'genre', 'tumbnail')
+        fields = ('id', 'title', 'description',  'genre', 'tumbnail')
 
 class CreateCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ('name', 'description')
         read_only_fields = ('code', 'created_at')
+

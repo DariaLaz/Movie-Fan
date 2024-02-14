@@ -5,6 +5,7 @@ from ..serializers.auth_serializers import *
 from ..models import Game
 from ..models import Player
 from ..models import PlayerScore
+from ..models import Submition
 
 from ..models import Category
 from rest_framework.response import Response
@@ -50,6 +51,8 @@ class GameView(APIView):
         self.serializer_class = GameSerializer
         game_id = request.GET.get('game_id')
         username = request.GET.get('username')
+
+        print(game_id)
 
         if game_id is not None:
             try:
@@ -165,10 +168,40 @@ class JoinGameView(APIView):
             if len(res_game) != 0:
                 game = res_game[0]
                 
-
     
 class CategoryView(APIView):
     serializer_class = CreateCategorySerializer
+
+    def put(self, request, format=None):
+        if not self.request.session.exists(self.request.session.session_key):
+            self.request.session.create()
+        try:
+            category_id = request.GET.get('category_id')
+            username = request.GET.get('username')
+
+            player = Player.objects.get(name=username)
+            category = Category.objects.get(pk=category_id)
+            if category.has_voted(player):
+                return Response('Already voted', status=status.HTTP_400_BAD_REQUEST)
+
+            for key in request.data.keys():
+                submition_id = key
+                points = request.data.get(key)
+                
+                submition = Submition.objects.get(pk=submition_id)
+                submition.add_points(points)
+            
+            category.add_voter(player)
+
+            if category.num_of_votes() == category.num_of_submitions():
+                category.finish()
+                category.save()
+                game = Game.objects.get(pk=category.game_id)
+                game.unlock_next_categories()
+
+            return Response("", status=status.HTTP_200_OK)
+        except:
+            return Response('Bad Request', status=status.HTTP_400_BAD_REQUEST)
 
     def post(self, request, format=None):
         if not self.request.session.exists(self.request.session.session_key):
@@ -191,7 +224,17 @@ class CategoryView(APIView):
             try:
                 category = Category.objects.get(pk=category_id)
                 serializer = CategorySerializer(category)
-                return Response(serializer.data, status=status.HTTP_200_OK)
+                data = serializer.data
+                submitions = category.submitions.all()
+                submitions_data = SubmitionSerializer(submitions, many=True).data
+                data['submitions'] = submitions_data
+                for submition in submitions_data:
+                    movie = Movie.objects.get(pk=submition['movie'])
+                    player = Player.objects.get(pk=submition['player'])
+                    submition['movie'] = MovieSerializer(movie).data
+                    submition['player'] = PlayerSerializer(player).data
+
+                return Response(data, status=status.HTTP_200_OK)
             except:
                 return Response("Not found", status=status.HTTP_404_NOT_FOUND)
         
@@ -200,6 +243,97 @@ class CategoryView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 
+class SubmitionView(APIView):    
+    def post(self, request, format=None):
+        if not self.request.session.exists(self.request.session.session_key):
+            self.request.session.create()
+
+        serializer = CreateSubmitionSerializer(data=request.data)
+
+
+        if serializer.is_valid():
+            
+            category_id = serializer.data.get('category_id')
+            username = serializer.data.get('username')
+            movie_id = serializer.data.get('movie_id')
+            
+            try:
+                category = Category.objects.get(pk=category_id)
+                player = Player.objects.get(name=username)
+                movie = Movie.objects.get(id=movie_id)
+
+                game = Game.objects.get(pk=category.game_id)
+                
+                if not game or not game.participants.contains(player):
+                    return Response({'Bad Request'"You are not part of that game"}, status=status.HTTP_400_BAD_REQUEST)
+
+                if category.has_submition(player):
+                    return Response({'Bad Request': "You already submited for that category"}, status=status.HTTP_400_BAD_REQUEST)
+
+                submition = Submition(category=category, player=player, movie=movie)
+
+                submition.save()
+
+                category.add_submition(submition=submition)
+                category.save()
+
+                if category.num_of_submitions() == game.num_of_players():
+                    category.start_voting()
+                    category.save()
+
+                return Response(SubmitionSerializer(submition).data, status=status.HTTP_201_CREATED)
+                
+            except:
+                return Response({'Bad Request': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+            # movie = serializer.data.get('movie')
+            # submition = Submition(category=category, player=player, movie=movie)
+            # submition.save()
+            # category.submitions.add(submition)
+            # category.save()
+
+            # name = serializer.data.get('name')
+            # description = serializer.data.get('description')
+            # category_id = serializer.data.get('category_id')
+            # player_id = serializer.data.get('player_id')
+            # category = Category.objects.get(pk=category_id)
+            # player = Player.objects.get(pk=player_id)
+            # submition = Submition(name=name, description=description, category_id=category, player_id=player)
+            # submition.save()
+            # category.submitions.add(submition)
+            # category.save()
+        else:
+            return Response({'Bad Request': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+           
+        
+    
+    def get(self, request, format=None):
+        self.serializer_class = SubmitionSerializer
+        submition_id = request.GET.get('submition_id')
+        category_id = request.GET.get('category_id')
+        if category_id is not None:
+            try:
+                submitions = Submition.objects.all().filter(category=category_id)
+                data =  SubmitionSerializer(submitions, many=True).data
+                for submition in data:
+                    movie = Movie.objects.get(pk=submition['movie'])
+                    player = Player.objects.get(pk=submition['player'])
+                    submition['movie'] = MovieSerializer(movie).data
+                    submition['player'] = PlayerSerializer(player).data
+                return Response(data, status=status.HTTP_200_OK)
+            except:
+                return Response("Not found", status=status.HTTP_404_NOT_FOUND)
+        if submition_id is not None:
+            try:
+                submition = Submition.objects.get(pk=submition_id)
+                serializer = SubmitionSerializer(submition)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            except:
+                return Response("Not found", status=status.HTTP_404_NOT_FOUND)
+        
+        submitions = Submition.objects.all()
+        serializer = SubmitionSerializer(submitions, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     
 class PlayersView(APIView):
@@ -281,4 +415,39 @@ class ScoreView(APIView):
         
         scores = PlayerScore.objects.all()
         serializer = ScoreSerializer(scores, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class MovieView(APIView):
+    serializer_class = CreateMovieSerializer
+    def post(self, request, format=None):
+        if not self.request.session.exists(self.request.session.session_key):
+            self.request.session.create()
+
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid():
+            title = serializer.data.get('title')
+            description = serializer.data.get('description')
+            genre = serializer.data.get('genre')
+            tumbnail = serializer.data.get('tumbnail')
+            link = serializer.data.get('link')
+            rating = serializer.data.get('rating')
+            movie = Movie(title=title, description=description, genre=genre, tumbnail=tumbnail, link=link, rating=rating)
+            movie.save()
+            return Response(MovieSerializer(movie).data, status=status.HTTP_201_CREATED)
+        return Response({'Bad Request': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+    
+    def get(self, request, format=None):
+        self.serializer_class = MovieSerializer
+        movie_id = request.GET.get('movie_id')
+        if movie_id is not None:
+            try:
+                movie = Movie.objects.get(pk=movie_id)
+                serializer = MovieSerializer(movie)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            except:
+                return Response("Not found", status=status.HTTP_404_NOT_FOUND)
+        
+        movies = Movie.objects.all()
+        serializer = MovieSerializer(movies, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

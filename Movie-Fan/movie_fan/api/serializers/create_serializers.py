@@ -37,4 +37,17 @@ class JoinGameSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=50)
     
 
-    
+class CreateSubmitionSerializer(serializers.Serializer):  
+    username = serializers.CharField(max_length=50)
+    category_id = serializers.IntegerField()
+    movie_id = serializers.IntegerField() 
+    # class Meta:
+    #     model = Submition
+    #     fields = ('username', 'category_id', 'movie_id')
+    #     # read_only_fields = ('created_at')
+
+class CreateMovieSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Movie
+        fields = ('title', 'description', 'rating', 'genre', 'tumbnail', 'link')
+        # read_only_fields = ('created_at',)

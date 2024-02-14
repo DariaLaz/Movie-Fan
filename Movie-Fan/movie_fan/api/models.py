@@ -34,6 +34,9 @@ class Game(models.Model):
         self.participants.add(player)
         self.save()
 
+    def num_of_players(self):
+        return self.participants.count()
+
     def unlock_next_categories(self):
         categories = self.categories.all()
         for category in categories:
@@ -103,7 +106,18 @@ class Category(models.Model):
     description = models.TextField()
     submitions = models.ManyToManyField('Submition', related_name='categories')
     game_id = models.IntegerField(default=0)
+    voters = models.ManyToManyField('Player', default=set)
     mode = models.IntegerField(default=0) # 0 - not started yet, 1 - in progress uploading, 2 - in progress voting, 3 - finished 
+
+    def num_of_votes(self):
+        return self.voters.count()
+
+    def has_voted(self, player):
+        return self.voters.filter(id=player.id).exists()
+    
+    def add_voter(self, player):
+        self.voters.add(player)
+        self.save()
 
     def start_uploading(self):
         self.mode = 1
@@ -121,6 +135,9 @@ class Category(models.Model):
         self.submitions.add(submition)
         self.save()
 
+    def num_of_submitions(self):
+        return self.submitions.count()
+
     def get_results(self):
         submitions = self.submitions.all()
         results = {}
@@ -129,16 +146,28 @@ class Category(models.Model):
                 results[submition.movie.title] = 0
             results[submition.movie.title] += submition.points
         return results
+    
+    def get_submitions(self):
+        return self.submitions
+    
+    def has_submition(self, player):
+        return self.submitions.filter(player=player).exists()
+
     def __str__(self):
         return self.name
 
 class Submition(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
     movie = models.ForeignKey('Movie', on_delete=models.CASCADE)
+    category = models.ForeignKey('Category', on_delete=models.CASCADE)
     points = models.IntegerField(default=0)
 
+    def add_points(self, points):
+        self.points += int(points)
+        self.save()
+
     def __str__(self):
-        return self.name
+        return str(self.__getattribute__("id"))
 
 class Movie(models.Model):
     title = models.CharField(max_length=100)

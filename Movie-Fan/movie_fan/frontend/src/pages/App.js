@@ -9,6 +9,7 @@ import Login from "./Login";
 import GameDetails from "./GameDetails";
 import Nav from "../components/Nav";
 import UploadMovie from "./UploadMovie";
+import Vote from "./Vote";
 
 export default function App() {
     const [isAuth, setIsAuth] = useState(localStorage.getItem('authToken'))
@@ -33,6 +34,7 @@ export default function App() {
                 <Route path="create-game/" element={<CreateGame />} />
                 <Route path="join/" element={<Join />} />
                 <Route path="*" element={<HomePage />} />
+                <Route path="vote/:categoryId" element={<Vote />} />
 
                 
             </Routes>

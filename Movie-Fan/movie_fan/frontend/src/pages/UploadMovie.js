@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Container, Paper, Typography, TextField, Button, Grid } from '@material-ui/core';
 import MovieCard from "./MovieCard";
+import { useNavigate } from 'react-router-dom';
+import getCookie from "../helpers.js"
 
 export default function UploadMovie() {
     const {categoryId} = useParams();
@@ -12,6 +14,8 @@ export default function UploadMovie() {
     const [searchData, setSearchData] = useState(null);
     const [choice, setChoice] = useState(null);
 
+
+    const navigate = useNavigate();
 
 
     useEffect(() => {
@@ -27,6 +31,49 @@ export default function UploadMovie() {
             .catch(err => alert(err));
     }, [categoryId]);
 
+
+    if(choice) {
+       (async () => {
+            const csrftoken = getCookie('csrftoken');
+            var id = -1;
+            await fetch(`/api/movies/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({
+                    title: choice.title,
+                    description: choice.description ? choice.description : "N/A",
+                    tumbnail: choice.thumbnail ? choice.thumbnail : "N/A",
+                    link: choice.link ? choice.link : "N/A",
+                    genre: choice.genre ? choice.genre : "N/A",
+                    rating: choice.rating,
+                })
+            }).then(r => r.json()).then(d => id = (d.id));
+            
+            const requestBody = {
+                username: localStorage.getItem("username"), 
+                category_id: categoryId,
+                movie_id: id
+            }
+            
+            await fetch(`/api/submition/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify(requestBody)
+            })
+            .then(res => res.json())
+            .then(data => console.log(data))
+
+            navigate(`/category/${categoryId}`);
+        })();
+        
+    }
+
     if (!category) {
         return <p>Loading...</p>;
     }
@@ -39,8 +86,9 @@ export default function UploadMovie() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        await fetch(`/api/movie/?q=${searchData}`)
-            .then(response => response.json()).then(data => setMovieData(data));        
+        await fetch(`/api/sarp_movie/?q=${searchData}`)
+            .then(response => response.json()).then(data => setMovieData(data));     
+            
         // navigate(`/game/${id}`);
     }
 

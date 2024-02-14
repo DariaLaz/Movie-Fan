@@ -20,7 +20,7 @@ export default function MovieCard({movie, setChoice}) {
   }, [showMore]);
 
   return (
-     <Grid item xs={12} sm={5} spacing={1} className="movieCard" >
+     <Grid item xs={12} sm={5} className="movieCard" >
        <Typography variant="h6" align="center">
         <a href={movie.link}>{movie.title.slice(0, 30) + (movie.title.length > 30 ? "...." : " ")}</a>
       </Typography>
