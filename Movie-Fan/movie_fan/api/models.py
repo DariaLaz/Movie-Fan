@@ -21,6 +21,8 @@ class Game(models.Model):
     participants = models.ManyToManyField('Player', related_name='games')
     categories = models.ManyToManyField('Category', related_name='games')
     mode = models.IntegerField(default=0) # 0 - waiting for players, 1 - in progress, 2 - finished
+    results = models.JSONField(default=dict)
+
 
     def start(self):
         self.mode = 1
@@ -28,10 +30,29 @@ class Game(models.Model):
 
     def finish(self):
         self.mode = 2
+
+        sortedRes  = sorted(self.results.items(), key=lambda x:x[1], reverse=True)
+        self.results  = dict(sortedRes)    
+
+        i = 1
+        for key in self.results:
+            player = Player.objects.get(name=key)
+            player.update_score(i)
+            i += 1
+            if i > 3:
+                break
+
         self.save()
 
     def add_player(self, player):
         self.participants.add(player)
+        self.results[player.name] = 0
+        self.save()
+
+    def update_results(self, player, points):
+        if not player.name in self.results:
+            self.results[player.name] = 0
+        self.results[player.name] += int(points)
         self.save()
 
     def num_of_players(self):
@@ -56,15 +77,6 @@ class Game(models.Model):
         return False
     
 
-    def get_results(self):
-        submitions = Submition.objects.filter(game=self)
-        results = {}
-        for submition in submitions:
-            if submition.player.name not in results:
-                results[submition.player.name] = 0
-            results[submition.player.name] += submition.points
-        return results
-
     def __str__(self):
         return self.name
     
@@ -75,11 +87,17 @@ class PlayerScore(models.Model):
     all_games = models.IntegerField(default=0)
     created = models.IntegerField(default=0)
 
+    def add_first(self):
+        self.first_place += 1
+
 class Player(models.Model):
     user_id = models.CharField(max_length=50, unique=True, default='')
     name = models.CharField(max_length=50, unique=True)
     my_games = models.ManyToManyField('Game', related_name='players', default=set)
     score = models.ForeignKey(PlayerScore, on_delete=models.CASCADE, null=True)
+
+    def add_first(self):
+        self.score.add_first()
 
     def update_created(self):
         if self.score is None:
@@ -164,6 +182,7 @@ class Submition(models.Model):
 
     def add_points(self, points):
         self.points += int(points)
+        
         self.save()
 
     def __str__(self):

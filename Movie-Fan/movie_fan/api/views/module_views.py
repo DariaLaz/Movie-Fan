@@ -11,6 +11,8 @@ from ..models import Category
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
+
 
 class GameView(APIView):
 
@@ -25,7 +27,7 @@ class GameView(APIView):
 
 
     def put(self, request):
-        """Put request are used to start / finish game - change game mode"""
+        """Put request are used to start game - change game mode"""
         self.serializer_class = GameSerializer
 
         game_id = request.data.get('game_id')
@@ -34,10 +36,10 @@ class GameView(APIView):
             try:
                 game = Game.objects.get(pk=game_id)
                 if game.mode == 0:
+                    if game.num_of_players() < 3:
+                        return Response({"Wrong":"Min 3 players"}, status=status.HTTP_400_BAD_REQUEST)
                     game.start()
                     game.unlock_next_categories()
-                elif game.mode == 1:
-                    game.finish()
                 serializer = GameSerializer(game, data=request.data, partial=True)
                 if serializer.is_valid():
                     serializer.save()
@@ -51,8 +53,6 @@ class GameView(APIView):
         self.serializer_class = GameSerializer
         game_id = request.GET.get('game_id')
         username = request.GET.get('username')
-
-        print(game_id)
 
         if game_id is not None:
             try:
@@ -74,6 +74,12 @@ class GameView(APIView):
                 data = serializer.data
                 data['categories'] = category_data
 
+                if game.mode == 2:
+                    data['results'] = self.__get_result(categories=categories)
+                    # sorted  = sorted(self.__get_result(categories=categories).items(), key=lambda x:x[1], reverse=True)
+                    # data['results'] = dict(sorted)
+
+
                 return Response(data, status=status.HTTP_200_OK)
             except:
                 return Response("Not found", status=status.HTTP_404_NOT_FOUND)
@@ -90,6 +96,19 @@ class GameView(APIView):
             game_data['categories'] = category_data
 
         return Response(data, status=status.HTTP_200_OK)
+    
+    def __get_result(self, categories):
+        result = {}
+        for category in categories:
+            for submition in category.submitions.all():
+                if submition.player.name not in result:
+                    result[submition.player.name] = 0
+                result[submition.player.name] += submition.points
+        sortedRes  = sorted(result.items(), key=lambda x:x[1], reverse=True)
+        return dict(sortedRes)
+    
+    def update_rating(self, result):
+        Player.objects.get(name=list(result)[0]).add_first()
 
     def post(self, request, format=None):
         self.serializer_class = self.get_serializer_class()
@@ -168,7 +187,6 @@ class JoinGameView(APIView):
             if len(res_game) != 0:
                 game = res_game[0]
                 
-    
 class CategoryView(APIView):
     serializer_class = CreateCategorySerializer
 
@@ -181,23 +199,35 @@ class CategoryView(APIView):
 
             player = Player.objects.get(name=username)
             category = Category.objects.get(pk=category_id)
+            game = Game.objects.get(pk=category.game_id)
+
+
             if category.has_voted(player):
                 return Response('Already voted', status=status.HTTP_400_BAD_REQUEST)
 
+            print(request.data.keys())
+
             for key in request.data.keys():
                 submition_id = key
-                points = request.data.get(key)
+                points = request.data[key]
                 
                 submition = Submition.objects.get(pk=submition_id)
                 submition.add_points(points)
-            
+
+                game.update_results(player=submition.player, points=points)
+
             category.add_voter(player)
+
 
             if category.num_of_votes() == category.num_of_submitions():
                 category.finish()
                 category.save()
-                game = Game.objects.get(pk=category.game_id)
-                game.unlock_next_categories()
+                
+                if not game.unlock_next_categories():
+                    game.finish()
+
+
+                    
 
             return Response("", status=status.HTTP_200_OK)
         except:
@@ -208,7 +238,7 @@ class CategoryView(APIView):
             self.request.session.create()
 
         serializer = self.serializer_class(data=request.data)
-
+        
         if serializer.is_valid():
             name = serializer.data.get('name')
             description = serializer.data.get('description')
@@ -233,6 +263,14 @@ class CategoryView(APIView):
                     player = Player.objects.get(pk=submition['player'])
                     submition['movie'] = MovieSerializer(movie).data
                     submition['player'] = PlayerSerializer(player).data
+
+                voters = category.voters.all()
+                voters_data = PlayerSerializer(voters, many=True).data
+                data['voters'] = voters_data
+                for voter in voters_data:
+                    name = voter['name']
+                    voter['name'] = name
+
 
                 return Response(data, status=status.HTTP_200_OK)
             except:

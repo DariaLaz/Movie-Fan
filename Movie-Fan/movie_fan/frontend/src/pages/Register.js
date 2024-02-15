@@ -1,12 +1,19 @@
 import React, { Component, useState } from "react";
 import getCookie from "../helpers";
+import { Container, Paper, Typography, TextField, Button, Grid } from '@material-ui/core';
+import { useNavigation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 export default function Register() {
     const [email, setEmail] = useState('')
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
 
-    const handleRegister = async () => {
+    const navigate = useNavigate()
+
+    const handleRegister = async (e) => {
+        e.preventDefault()
         try{
             var responce = {}
             const csrftoken = getCookie('csrftoken');
@@ -31,21 +38,64 @@ export default function Register() {
                 body: JSON.stringify({
                     name: username
                 })
-            }).then(response => response.json()).then(data => console.log(data));
-            console.log(responce)
+            }).then(response => response.json());
+
+            // navigator('/login')
     
         } catch (error) {
           console.error('Register failed:', error);
         }
       };
-
+      if (localStorage.getItem("username")){
+        useEffect(() => {
+          navigate("/")
+        });
+      }
 
     return (
-    <div>
-        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <input type="username" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
-        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        <button onClick={handleRegister}>Login</button>
-    </div>
+        <Container className="root" maxWidth="md">
+        <Paper className="paper" elevation={4}>
+          <Typography variant="h5" align="center">
+            Register
+          </Typography>
+          <form className="form" onSubmit={handleRegister}>
+            <TextField
+              label="email"
+              fullWidth
+              name="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              margin="normal"
+            />
+            <TextField
+              label="username"
+              fullWidth
+              name="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              margin="normal"
+            />
+            <TextField
+              label="password"
+              fullWidth
+              name="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              margin="normal"
+            />
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+            >
+                Register
+            </Button>
+          </form>
+        </Paper>
+      </Container>    
     );
 }

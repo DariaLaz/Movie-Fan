@@ -38,9 +38,9 @@ export default function CategoryCard({category, setCategories}) {
 
             for (let i = 0; i < data.voters.length; i++) {
                 submition.push(data.voters[i].name)
-
             }
-
+            console.log("submition:")
+            console.log(data.voters[0])
             if (submition.find(s => s == localStorage.getItem("username"))) {
                 setMode(5);
             }

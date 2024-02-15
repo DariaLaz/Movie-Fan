@@ -1,12 +1,18 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import getCookie from "../helpers.js"
+import { Container, Paper, Typography, TextField, Button, Grid } from '@material-ui/core';
+import { useNavigate } from "react-router-dom";
 
 
 export default function Login({setIsAuth}) {
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = async () => {
+  const navigate = useNavigate()
+  
+  const handleLogin = async (e) => {
+    e.preventDefault()
     try{
         var responce = {}
         const csrftoken = getCookie('csrftoken');
@@ -21,22 +27,65 @@ export default function Login({setIsAuth}) {
             })
         })
         .then(response => response.json()).then(data => responce = data);
-        console.log(responce)
-        
-        localStorage.setItem('authToken', responce.token);
-        localStorage.setItem('username', responce.username);
 
-        setIsAuth(localStorage.getItem('authToken'))
+        const tokenRes = responce.token
 
+        const usernameRes = responce.username
+
+        if (tokenRes && usernameRes){
+          localStorage.setItem('authToken', tokenRes);
+          localStorage.setItem('username', usernameRes);
+
+          setIsAuth(localStorage.getItem('authToken'))
+          navigate('/')
+        }
+        else {
+          alert("wrong credentials")
+        }
     } catch (error) {
-      console.error('Login failed:', error);
+      alert('Login failed:');
     }
   };
+  if (localStorage.getItem("username")){
+    useEffect(() => {
+      navigate("/")
+    });
+  }
     return (
-        <div>
-      <input type="username" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
-      <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-      <button onClick={handleLogin}>Login</button>
-    </div>
+      <Container className="root" maxWidth="md">
+        <Paper className="paper" elevation={4}>
+          <Typography variant="h5" align="center">
+            Login
+          </Typography>
+          <form className="form" onSubmit={handleLogin}>
+            <TextField
+              label="username"
+              fullWidth
+              name="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              margin="normal"
+            />
+            <TextField
+              label="password"
+              fullWidth
+              name="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              margin="normal"
+            />
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+            >
+                Login
+            </Button>
+          </form>
+        </Paper>
+      </Container>
     );
 }

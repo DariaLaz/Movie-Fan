@@ -26,7 +26,7 @@ export default function GameDetails() {
     if (!game) {
         return <p>Loading...</p>;
     }
-    console.log("here")
+    console.log(game)
 
 
     const handleStartGame = async (e) => {
@@ -55,6 +55,21 @@ export default function GameDetails() {
             mode: 1
         })
     }
+    // console.log(game.results)
+    // for (var res in game.results){
+    //     console.log(res)
+    //     console.log(game.results[res])
+    // }
+
+    const getResult = () => {
+        const result = []
+        console.log(game.results)
+        for (var res in game.results){
+            result.push(res + " - " + game.results[res])
+        }
+        return result.join(" ")
+    }
+
     return (
         <Container className="root" maxWidth="md">
             <Paper className="paper" elevation={4}>
@@ -64,9 +79,28 @@ export default function GameDetails() {
                 <Typography variant="h6" align="center">
                     {game.description}
                 </Typography>
+                <Typography variant="h6" align="center">
+                    {game.participants.length} participant(s)
+                </Typography>
+
+                {
+                    game.mode === 2 &&
+                    getResult()
+                }
+
+                {
+                    game.mode === 0 &&
+                    game.participants.length < 3 &&
+                    game.host === localStorage.getItem('username') &&
+                    <Button variant="contained"  className="detailsBtn" disabled>
+                            Start Game
+                    </Button>
+                }
+
                 {
                     game.mode === 0 &&
                     game.host === localStorage.getItem('username') &&
+                    game.participants.length >= 3 &&
                     <Button variant="contained"  className="detailsBtn" onClick={handleStartGame}>
                             Start Game
                     </Button>
