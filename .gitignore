@@ -11,6 +11,7 @@ media
 settings.py
 secret.py
 
+node_modules
 
 # Backup files # 
 *.bak 
