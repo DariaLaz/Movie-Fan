@@ -3,14 +3,13 @@ import random
 import string
 
 def generate_code_for_game():
+    """Generates unique code for a game"""
     length = 6
     while True:
         code = ''.join(random.choices(string.ascii_uppercase, k=length))
         if not Game.objects.filter(code=code).exists():
             break
     return code
-
-
 
 class Game(models.Model):
     code = models.CharField(max_length=6, default=generate_code_for_game, unique=True)
@@ -23,14 +22,12 @@ class Game(models.Model):
     mode = models.IntegerField(default=0) # 0 - waiting for players, 1 - in progress, 2 - finished
     results = models.JSONField(default=dict)
 
-
     def start(self):
         self.mode = 1
         self.save()
 
     def finish(self):
         self.mode = 2
-
         sortedRes  = sorted(self.results.items(), key=lambda x:x[1], reverse=True)
         self.results  = dict(sortedRes)    
 
@@ -41,7 +38,6 @@ class Game(models.Model):
             i += 1
             if i > 3:
                 break
-
         self.save()
 
     def add_player(self, player):
@@ -87,17 +83,11 @@ class PlayerScore(models.Model):
     all_games = models.IntegerField(default=0)
     created = models.IntegerField(default=0)
 
-    def add_first(self):
-        self.first_place += 1
-
 class Player(models.Model):
     user_id = models.CharField(max_length=50, unique=True, default='')
     name = models.CharField(max_length=50, unique=True)
     my_games = models.ManyToManyField('Game', related_name='players', default=set)
     score = models.ForeignKey(PlayerScore, on_delete=models.CASCADE, null=True)
-
-    def add_first(self):
-        self.score.add_first()
 
     def update_created(self):
         if self.score is None:
@@ -182,7 +172,6 @@ class Submition(models.Model):
 
     def add_points(self, points):
         self.points += int(points)
-        
         self.save()
 
     def __str__(self):

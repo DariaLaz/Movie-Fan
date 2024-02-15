@@ -1,9 +1,10 @@
 import { Button } from '@material-ui/core';
 import React from 'react';
 import getCookie from "../helpers"
-import { redirect } from 'react-router-dom';
+import { redirect, useNavigate } from 'react-router-dom';
 
 export default function Logout({setIsAuth}){
+    const navigate = useNavigate();
     const handleLogout = async () => {
         try {
             const csrftoken = getCookie('csrftoken');
@@ -19,6 +20,8 @@ export default function Logout({setIsAuth}){
             localStorage.removeItem('username');
 
             setIsAuth(localStorage.getItem('authToken'))
+
+            navigate('/login')
         } catch (error) {
             console.error('Logout failed:', error);
         }

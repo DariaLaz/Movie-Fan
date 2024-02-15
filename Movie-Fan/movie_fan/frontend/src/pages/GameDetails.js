@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { redirect, useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Paper, Typography, Grid, Button } from '@material-ui/core';
 import CategoryCard from "../components/CategotyCard";
 import getCookie from "../helpers.js"
@@ -7,7 +7,6 @@ import getCookie from "../helpers.js"
 
 export default function GameDetails() {
     const {gameId} = useParams();
-    const navigate = useNavigate();
     const [game, setGame] = useState(null);
 
     useEffect(() => {
@@ -15,7 +14,6 @@ export default function GameDetails() {
             .then(response => {
                 if (!response.ok) {
                     alert(`HTTP error! Status: ${response.status}`);
-                    // navigate('/')
                     return;
                 }
                 return response.json();})
@@ -55,12 +53,7 @@ export default function GameDetails() {
             mode: 1
         })
     }
-    // console.log(game.results)
-    // for (var res in game.results){
-    //     console.log(res)
-    //     console.log(game.results[res])
-    // }
-
+    
     const getResult = () => {
         const result = []
         console.log(game.results)

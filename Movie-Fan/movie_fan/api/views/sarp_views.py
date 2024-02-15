@@ -19,21 +19,19 @@ class MovieSarpView(APIView):
         
         url = f'https://serpapi.com/search.json?engine=google_play_movies&q={query}'
         
-
         params = {
             "engine": "google_play_movies",
             "q": f"{query}",
             "api_key": f'{SERP_API_KEY}',
         }
 
-        # try:
-        #     response = requests.get(url, params=params)
-        #     data = response.json()
-        #     data = data.get('organic_results')[0].get('items')
-        #     # data = json.loads(data).get('organic_results')
-        #     return Response({'movies': data}, status=status.HTTP_200_OK)
-        # except:
-        #     return Response({'movies': []}, status=status.HTTP_200_OK)
+        try:
+            response = requests.get(url, params=params)
+            data = response.json()
+            data = data.get('organic_results')[0].get('items')
+            return Response({'movies': data}, status=status.HTTP_200_OK)
+        except:
+            return Response({'movies': []}, status=status.HTTP_200_OK)
 
         return Response({'movies': [
         {

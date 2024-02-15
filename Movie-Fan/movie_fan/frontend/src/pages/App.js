@@ -19,9 +19,7 @@ export default function App() {
         
         <Router>
             <Nav isAuth={isAuth} setIsAuth={setIsAuth}/>
-            <Routes>
-                {/* {!isAuth && (<Redirect to='login/'/>)} */}
-                
+            <Routes>                
                 <Route path="register/" element={<Register setIsAuth={setIsAuth} />} />
                 <Route path="login/" element={<Login setIsAuth={setIsAuth}/>} />
 
@@ -30,13 +28,10 @@ export default function App() {
 
                 <Route path="/games/:gameId" element={<GameDetails />} />
                 <Route path="/upload/:categoryId" element={<UploadMovie />} />
-                {/* <Route path="movie/" element={<MoviePage />} /> */}
                 <Route path="create-game/" element={<CreateGame />} />
                 <Route path="join/" element={<Join />} />
                 <Route path="*" element={<HomePage />} />
                 <Route path="vote/:categoryId" element={<Vote />} />
-
-                
             </Routes>
         </Router>
         </div>

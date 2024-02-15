@@ -1,9 +1,7 @@
-import React, { Component, useState } from "react";
+import React, { useState } from "react";
 import {Grid, Typography, Button, TextField, Paper, Container} from "@material-ui/core";
 import { useNavigate } from "react-router-dom";
 import getCookie from "../helpers.js"
-
-
 
 export default function Join() {
     const [code, setCode] = useState("");
@@ -16,6 +14,7 @@ export default function Join() {
 
     const handleEnterGame = (e) => {
         const csrftoken = getCookie('csrftoken');
+
         (async () => {
             await fetch('/api/join/', 
             {
@@ -41,28 +40,28 @@ export default function Join() {
     return (
         <Container className="root" maxWidth="md">
             <Paper className="paper">
-            <Grid container spacing={1}>
+                <Grid container spacing={1}>
                     <Grid item xs={12} align="center">
-                    <Typography variant="h4" component="h4">
-                        Join a Game
-                    </Typography>
+                        <Typography variant="h4" component="h4">
+                            Join a Game
+                        </Typography>
                     </Grid>
                     <Grid item xs={12} align="center">
-                    <TextField
-                        label="Code"
-                        placeholder="Enter a Game Code"
-                        variant="outlined"
-                        onChange={handleCodeChange}
-                    />
+                        <TextField
+                            label="Code"
+                            placeholder="Enter a Game Code"
+                            variant="outlined"
+                            onChange={handleCodeChange}
+                        />
                     </Grid>
                     <Grid item xs={12} align="center">
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={handleEnterGame}
-                    >
-                        Enter Game
-                    </Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={handleEnterGame}
+                        >
+                            Enter Game
+                        </Button>
                     </Grid>
                 </Grid>
             </Paper>

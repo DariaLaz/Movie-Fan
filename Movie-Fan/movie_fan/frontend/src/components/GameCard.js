@@ -2,9 +2,8 @@ import { Button, Grid, Typography } from "@material-ui/core";
 import React from "react";
 import { Link } from "react-router-dom";
 
-export default function GameCard({game}) {
+export default function GameCard({ game }) {
     return (
-
         <Grid item xs={12} sm={5} className="gameCard" >
             <Typography component='h4' variant='h3'>
                 {game.name}

@@ -1,5 +1,4 @@
-import React, { Component, useState, useEffect } from "react";
-import { Redirect } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
 
 import { Container, Paper, Typography, Grid, List, ListItem, ListItemText } from "@material-ui/core";
 import GameCard from "../components/GameCard";
@@ -23,9 +22,11 @@ export default function HomePage() {
     return (
         <Container className="root" maxWidth="md">
             <Paper className="paper" elevation={3}>
+
                 <Typography variant="h3" align="center" id="welcome">
                     Welcome <b>{player.name}</b>
                 </Typography>
+
                 <Grid container spacing={1} justifyContent="center" className="stats">
                     <Grid item xs={12} sm={4} >
                         <Typography variant="h6">Your Score:</Typography>
@@ -41,6 +42,7 @@ export default function HomePage() {
                             </ListItem>
                         </List>
                     </Grid>
+
                     <Grid item xs={12} sm={4}>
                         <Typography variant="h6">Your Games:</Typography>
                         <List>
@@ -52,14 +54,12 @@ export default function HomePage() {
                             </ListItem>
                         </List>
                     </Grid>
+
                 </Grid>  
             </Paper>
             <Grid container elevation={player.my_games.length} className="gameCardContainer">
-            {/* <GameCard game={{name:"name", description:"descr", id:2}}/>
-            <GameCard game={{name:"name", description:"descr", id:2}}/>
-            <GameCard game={{name:"name", description:"descr", id:2}}/> */}
                 {player.my_games.map((game, index) =>
-                <GameCard key={index} game={game}/>)}
+                    <GameCard key={index} game={game}/>)}
             </Grid>
         </Container>
     );

@@ -18,15 +18,18 @@ class LoginView(APIView):
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data, context={'request': request})
         if serializer.is_valid():
-            
-            user = User.objects.get(username=serializer.data.get('username'))
-            token, created = Token.objects.get_or_create(user=user)
-            return Response({
-            'token': token.key,
-            'username': serializer.data.get('username'),
-            'user_id': user.id
-            }, status=status.HTTP_200_OK)
-
+            try:
+                serializer.validate(request.data)
+                user = User.objects.get(username=serializer.data.get('username'))
+                token, created = Token.objects.get_or_create(user=user)
+                return Response({
+                    'token': token.key,
+                    'username': serializer.data.get('username'),
+                    'user_id': user.id
+                }, status=status.HTTP_200_OK)
+            except:
+                return Response({"detail": "Invalid Credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+           
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         

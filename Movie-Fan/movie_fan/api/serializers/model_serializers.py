@@ -26,11 +26,6 @@ class MovieSerializer(serializers.ModelSerializer):
         model = Movie
         fields = ('id', 'title', 'description', 'genre', 'tumbnail', 'link', 'rating')
 
-# class UserRegisterSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Player
-#         fields = ('id', 'name', 'password')
-
 class VoteSerializer(serializers.Serializer):
     ratings = serializers.DictField()
     category_id = serializers.IntegerField()

@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from ..models import Game, Player, Category, Submition, Movie
 from django.contrib.auth import get_user_model, authenticate
 
 UserModel = get_user_model()
@@ -29,14 +28,6 @@ class UserLoginSerializer(serializers.Serializer):
                 return data
 
         raise serializers.ValidationError("Incorrect Credentials")
-
-    # def validate(self, data):
-    #     email = data.get('email')
-    #     password = data.get('password')
-    #     user = authenticate(request=self.context.get('request'), username=email, password=password)
-    #     if user:
-    #         return user
-    #     raise serializers.ValidationError("Incorrect Credentials")
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:

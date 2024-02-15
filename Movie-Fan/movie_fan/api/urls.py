@@ -14,7 +14,6 @@ urlpatterns = [
     path('category/', CategoryView.as_view()),
     path('category/<int:category_id>', CategoryView.as_view()),
     path('login/', LoginView.as_view(), name='login'),
-
     path('logout/', LogoutView.as_view(), name='logout'),
     path('register/', RegisterView.as_view(), name='register'),
     path('sarp_movie/', MovieSarpView.as_view()),

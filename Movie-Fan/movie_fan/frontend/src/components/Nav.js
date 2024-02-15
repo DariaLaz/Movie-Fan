@@ -1,7 +1,6 @@
 import React from "react";
-import { AppBar, Toolbar, Typography, Button, IconButton, Link, MenuIcon  } from "@material-ui/core";
+import { AppBar, Toolbar, Typography, Link } from "@material-ui/core";
 import Logout from "./Logout";
-import { BrowserRouter } from 'react-router-dom';
 
 export default function Nav({isAuth, setIsAuth}) {
     
@@ -15,13 +14,14 @@ export default function Nav({isAuth, setIsAuth}) {
         {!isAuth && (
             <div style={{ marginLeft: 'auto' }}>
               <Link href="\login" color="inherit" style={{ marginRight: '20px' }}>
-                  LOGIN
-                </Link>
+                LOGIN
+              </Link>
               <Link href="\register" color="inherit" style={{ marginRight: '20px' }}>
-                  REGISTER
+                REGISTER
               </Link>
             </div>
         )}
+
         {isAuth && (
           <div style={{ marginLeft: 'auto' }}>
           <Link href="/" color="inherit" style={{ marginRight: '20px' }}>
@@ -36,37 +36,7 @@ export default function Nav({isAuth, setIsAuth}) {
           <Logout setIsAuth={setIsAuth}/>
         </div> 
         )}
-        
       </Toolbar>
     </AppBar>
-    //   <Toolbar className="Nav">
-    //     <Typography variant="h6">MovieFan</Typography>
-    //     <Grid container justify="flex-end">
-    //       <Button >Home</Button>
-    //       <Button >Create game</Button>
-    //       <Button>Join game</Button>
-    //     </Grid>
-        
-    //   </Toolbar>
-
-        // <nav className="Nav">
-            
-        //     <ul>
-        //         <li>bhjkjh</li>
-        //         <li>rdsf</li>
-        //         <li>rdsf</li>
-        //         {isAuth && (
-        //             <li><Logout setIsAuth={setIsAuth}/></li>
-        //         )}
-        //         {!isAuth && (
-        //                 <li><Button>Login</Button></li>
-        //         )}
-        //          {!isAuth && (
-        //                 <li><Button>Register</Button></li>
-        //         )}
-
-        //         {/* <li><Link to="/">Home</Link></li>*/}
-        //     </ul>
-        // </nav>
     );
 }

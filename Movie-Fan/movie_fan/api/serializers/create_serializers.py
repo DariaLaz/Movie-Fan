@@ -1,12 +1,10 @@
 from rest_framework import serializers
-from ..models import Game, Player, Category, Submition, Movie
+from ..models import Game, Player, Category, Movie
 from ..models import PlayerScore
-
 
 class CreateGameSerializer(serializers.ModelSerializer):
     class Meta:
         model = Game
-
         fields = ('name', 'description', 'categories', 'host')
         read_only_fields = ('code', 'created_at')
 
@@ -31,23 +29,16 @@ class ScoreSerializer(serializers.ModelSerializer):
         model = PlayerScore
         fields = '__all__'
 
-
 class JoinGameSerializer(serializers.Serializer):
     code = serializers.CharField(max_length=6)
     username = serializers.CharField(max_length=50)
     
-
 class CreateSubmitionSerializer(serializers.Serializer):  
     username = serializers.CharField(max_length=50)
     category_id = serializers.IntegerField()
     movie_id = serializers.IntegerField() 
-    # class Meta:
-    #     model = Submition
-    #     fields = ('username', 'category_id', 'movie_id')
-    #     # read_only_fields = ('created_at')
 
 class CreateMovieSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movie
         fields = ('title', 'description', 'rating', 'genre', 'tumbnail', 'link')
-        # read_only_fields = ('created_at',)

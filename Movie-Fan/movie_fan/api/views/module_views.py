@@ -11,25 +11,10 @@ from ..models import Category
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
-
 
 class GameView(APIView):
-
-    serialize_class = GameSerializer
-    def get_serializer_class(self):
-        if self.request.method == 'POST':
-            return CreateGameSerializer
-        elif self.request.method == 'PUT':
-            return UpdateGameSerializer
-        else:
-            return GameSerializer
-
-
     def put(self, request):
         """Put request are used to start game - change game mode"""
-        self.serializer_class = GameSerializer
-
         game_id = request.data.get('game_id')
             
         if game_id is not None:
@@ -49,26 +34,18 @@ class GameView(APIView):
         return Response({'Bad Request': ""}, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request, format=None):
-        """Get request are used to get all games or specific game if game_id is provided in request params the game is returned"""
-        self.serializer_class = GameSerializer
+        """Get request returns all games or specific game if game_id is provided in request params"""
         game_id = request.GET.get('game_id')
-        username = request.GET.get('username')
 
-        if game_id is not None:
+        if game_id is not None: 
+            """If game_id is provided, return specific game with all categories and submitions for each category"""
             try:
                 game = Game.objects.get(pk=game_id)
-                player = Player.objects.get(name=username)
 
                 categories = game.categories.all()
                 category_data = CategorySerializer(categories, many=True).data
 
-                for category in category_data:
-                    #  0 - waiting for submitions, 1 - waiting for votes, 2 - finished, 3 - waiting for submition, 4 - waiting for vote, 5 - finished
-                    print(category)
-                    # if category['mode'] == 1 and category['submitions'].any(lambda id: id == player.id):
-                    #    category['mode'] = 4
-                    # elif category['mode'] == 2 and category['votes'].any(lambda id: id == player.id):
-                    #     category['mode'] = 5                        
+                #  0 - waiting for submitions, 1 - waiting for votes, 2 - finished, 3 - waiting for submition, 4 - waiting for vote, 5 - finished                      
 
                 serializer = GameSerializer(game)
                 data = serializer.data
@@ -76,15 +53,12 @@ class GameView(APIView):
 
                 if game.mode == 2:
                     data['results'] = self.__get_result(categories=categories)
-                    # sorted  = sorted(self.__get_result(categories=categories).items(), key=lambda x:x[1], reverse=True)
-                    # data['results'] = dict(sorted)
-
 
                 return Response(data, status=status.HTTP_200_OK)
             except:
                 return Response("Not found", status=status.HTTP_404_NOT_FOUND)
         
-        
+        """If game_id is not provided, return all games with all categories"""
         games = Game.objects.all()
         serializer = GameSerializer(games, many=True)
         data = serializer.data
@@ -98,6 +72,7 @@ class GameView(APIView):
         return Response(data, status=status.HTTP_200_OK)
     
     def __get_result(self, categories):
+        """Get result of the game based on categories and submitions for each category"""
         result = {}
         for category in categories:
             for submition in category.submitions.all():
@@ -106,18 +81,14 @@ class GameView(APIView):
                 result[submition.player.name] += submition.points
         sortedRes  = sorted(result.items(), key=lambda x:x[1], reverse=True)
         return dict(sortedRes)
-    
-    def update_rating(self, result):
-        Player.objects.get(name=list(result)[0]).add_first()
 
-    def post(self, request, format=None):
-        self.serializer_class = self.get_serializer_class()
-        
+    def post(self, request, format=None):  
+        """Post request are used to create new game"""     
+
         if not self.request.session.exists(self.request.session.session_key):
             self.request.session.create()
 
-        serializer = self.serializer_class(data=request.data)
-
+        serializer = CreateGameSerializer(data=request.data)
 
         if serializer.is_valid():
             name = serializer.data.get('name')
@@ -150,9 +121,8 @@ class GameView(APIView):
         return Response({'Bad Request': "1q12"}, status=status.HTTP_400_BAD_REQUEST)
     
 class JoinGameView(APIView):
-    
     def post(self, request, format=None):
-
+        """Post request are used to join game"""
         if not self.request.session.exists(self.request.session.session_key):
             self.request.session.create()
 
@@ -167,30 +137,26 @@ class JoinGameView(APIView):
                     player = Player.objects.get(name=username)
                     game = Game.objects.get(code=code)
                 except:
-                    return Response({'Bad Request': "1q12"}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response('Bad Request', status=status.HTTP_400_BAD_REQUEST)
                 
                 if game.mode != 0:
-                    return Response({'Bad Request': "1q12"}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response('Bad Request', status=status.HTTP_400_BAD_REQUEST)
                 
                 if game.participants.filter(name=username).exists():
-                    return Response('Alreadyy in', status=status.HTTP_400_BAD_REQUEST)
+                    return Response('Already in', status=status.HTTP_400_BAD_REQUEST)
                 
                 game.participants.add(player)
                 player.my_games.add(game)
                 player.update_score()
-                # player.score.all_games += 1
                 return Response(GameSerializer(game).data, status=status.HTTP_200_OK)
-
-
-        if code is not None:
-            res_game = Game.objects.filter(code=code)
-            if len(res_game) != 0:
-                game = res_game[0]
+            
+        return Response({'Bad Request:', serializer.error_messages}, status=status.HTTP_400_BAD_REQUEST)
                 
 class CategoryView(APIView):
     serializer_class = CreateCategorySerializer
 
     def put(self, request, format=None):
+        """Put request are used to vote for submitions in category"""
         if not self.request.session.exists(self.request.session.session_key):
             self.request.session.create()
         try:
@@ -201,11 +167,8 @@ class CategoryView(APIView):
             category = Category.objects.get(pk=category_id)
             game = Game.objects.get(pk=category.game_id)
 
-
             if category.has_voted(player):
                 return Response('Already voted', status=status.HTTP_400_BAD_REQUEST)
-
-            print(request.data.keys())
 
             for key in request.data.keys():
                 submition_id = key
@@ -221,19 +184,16 @@ class CategoryView(APIView):
 
             if category.num_of_votes() == category.num_of_submitions():
                 category.finish()
-                category.save()
                 
                 if not game.unlock_next_categories():
                     game.finish()
 
-
-                    
-
-            return Response("", status=status.HTTP_200_OK)
+            return Response(GameSerializer(game), status=status.HTTP_200_OK)
         except:
             return Response('Bad Request', status=status.HTTP_400_BAD_REQUEST)
 
     def post(self, request, format=None):
+        """Post request are used to create new category"""
         if not self.request.session.exists(self.request.session.session_key):
             self.request.session.create()
 
@@ -248,9 +208,11 @@ class CategoryView(APIView):
         return Response({'Bad Request': request}, status=status.HTTP_400_BAD_REQUEST)
     
     def get(self, request, format=None):
+        """Get request returns all categories or specific category if category_id is provided in request params"""
         self.serializer_class = CategorySerializer
         category_id = request.GET.get('category_id')
         if category_id is not None:
+            """If category_id is provided, return specific category with all submitions and voters for that category"""
             try:
                 category = Category.objects.get(pk=category_id)
                 serializer = CategorySerializer(category)
@@ -276,6 +238,7 @@ class CategoryView(APIView):
             except:
                 return Response("Not found", status=status.HTTP_404_NOT_FOUND)
         
+        """If category_id is not provided, return all categories"""
         categories = Category.objects.all()
         serializer = CategorySerializer(categories, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -283,14 +246,13 @@ class CategoryView(APIView):
 
 class SubmitionView(APIView):    
     def post(self, request, format=None):
+        """Post request are used to create new submition"""
         if not self.request.session.exists(self.request.session.session_key):
             self.request.session.create()
 
         serializer = CreateSubmitionSerializer(data=request.data)
 
-
         if serializer.is_valid():
-            
             category_id = serializer.data.get('category_id')
             username = serializer.data.get('username')
             movie_id = serializer.data.get('movie_id')
@@ -309,7 +271,6 @@ class SubmitionView(APIView):
                     return Response({'Bad Request': "You already submited for that category"}, status=status.HTTP_400_BAD_REQUEST)
 
                 submition = Submition(category=category, player=player, movie=movie)
-
                 submition.save()
 
                 category.add_submition(submition=submition)
@@ -320,36 +281,18 @@ class SubmitionView(APIView):
                     category.save()
 
                 return Response(SubmitionSerializer(submition).data, status=status.HTTP_201_CREATED)
-                
             except:
                 return Response({'Bad Request': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-            # movie = serializer.data.get('movie')
-            # submition = Submition(category=category, player=player, movie=movie)
-            # submition.save()
-            # category.submitions.add(submition)
-            # category.save()
-
-            # name = serializer.data.get('name')
-            # description = serializer.data.get('description')
-            # category_id = serializer.data.get('category_id')
-            # player_id = serializer.data.get('player_id')
-            # category = Category.objects.get(pk=category_id)
-            # player = Player.objects.get(pk=player_id)
-            # submition = Submition(name=name, description=description, category_id=category, player_id=player)
-            # submition.save()
-            # category.submitions.add(submition)
-            # category.save()
         else:
             return Response({'Bad Request': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
            
-        
-    
     def get(self, request, format=None):
+        """Get request returns all submitions or specific ones if category_id or submition_id is provided in request params"""
         self.serializer_class = SubmitionSerializer
         submition_id = request.GET.get('submition_id')
         category_id = request.GET.get('category_id')
         if category_id is not None:
+            """Returns the submitions for provided category"""
             try:
                 submitions = Submition.objects.all().filter(category=category_id)
                 data =  SubmitionSerializer(submitions, many=True).data
@@ -362,6 +305,7 @@ class SubmitionView(APIView):
             except:
                 return Response("Not found", status=status.HTTP_404_NOT_FOUND)
         if submition_id is not None:
+            """Returns submition with provided submition_id"""
             try:
                 submition = Submition.objects.get(pk=submition_id)
                 serializer = SubmitionSerializer(submition)
@@ -369,20 +313,20 @@ class SubmitionView(APIView):
             except:
                 return Response("Not found", status=status.HTTP_404_NOT_FOUND)
         
+        """Returns all submitions"""
         submitions = Submition.objects.all()
         serializer = SubmitionSerializer(submitions, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     
 class PlayersView(APIView):
-    serializer_class = CreatePlayerSerializer
-
     def get(self, request, format=None):
-        self.serializer_class = PlayerSerializer
+        """Get request returns all players or specific player if player_id or name is provided in request params"""
         name = request.GET.get('name')
         player_id = request.GET.get('player_id')
         
         if player_id is not None:
+            """Returns a specific player if player_id is provided"""
             try:
                 player = Player.objects.get(pk=player_id)
                 serializer = PlayerSerializer(player)
@@ -401,6 +345,7 @@ class PlayersView(APIView):
                 return Response("Not found", status=status.HTTP_404_NOT_FOUND)
         
         if name is not None:
+            """Returns a specific player if name is provided"""
             try:
                 player = Player.objects.get(name=name)
                 serializer = PlayerSerializer(player, many=False)
@@ -423,11 +368,11 @@ class PlayersView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
-
+        """Post request are used to create new player"""
         if not self.request.session.exists(self.request.session.session_key):
             self.request.session.create()
 
-        serializer = self.serializer_class(data=request.data)
+        serializer = CreatePlayerSerializer(data=request.data)
 
         if serializer.is_valid():
             name = serializer.data.get('name')
@@ -441,9 +386,11 @@ class PlayersView(APIView):
 class ScoreView(APIView):
     serializer_class = ScoreSerializer
     def get(self, request, format=None):
+        """Returns all scores or for specific player if player_id is provided"""
         self.serializer_class = ScoreSerializer
         player_id = request.GET.get('player_id')
         if player_id is not None:
+            """Returns score for a specific player"""
             try:
                 player = Player.objects.get(pk=player_id)
                 serializer = ScoreSerializer(player.score)
@@ -451,6 +398,7 @@ class ScoreView(APIView):
             except:
                 return Response("Not found", status=status.HTTP_404_NOT_FOUND)
         
+        """Returns all scores"""
         scores = PlayerScore.objects.all()
         serializer = ScoreSerializer(scores, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -458,6 +406,7 @@ class ScoreView(APIView):
 class MovieView(APIView):
     serializer_class = CreateMovieSerializer
     def post(self, request, format=None):
+        """Post request are used to create new movie"""
         if not self.request.session.exists(self.request.session.session_key):
             self.request.session.create()
 
@@ -476,9 +425,11 @@ class MovieView(APIView):
         return Response({'Bad Request': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
     
     def get(self, request, format=None):
+        """Returns all movies or a specific movie if movie_id is provided"""
         self.serializer_class = MovieSerializer
         movie_id = request.GET.get('movie_id')
         if movie_id is not None:
+            """Returns a specific movie"""
             try:
                 movie = Movie.objects.get(pk=movie_id)
                 serializer = MovieSerializer(movie)
@@ -486,6 +437,7 @@ class MovieView(APIView):
             except:
                 return Response("Not found", status=status.HTTP_404_NOT_FOUND)
         
+        """Returns all movies"""
         movies = Movie.objects.all()
         serializer = MovieSerializer(movies, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

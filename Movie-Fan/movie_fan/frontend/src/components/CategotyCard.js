@@ -1,10 +1,10 @@
 import { Button, Grid, Typography, TextField } from "@material-ui/core";
 import React from "react";
 import { useState } from "react";
-import { Form, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useEffect } from "react";
 
-export default function CategoryCard({category, setCategories}) {
+export default function CategoryCard({category}) {
     const [mode, setMode] = React.useState(category.mode);
     const [showMore, setShowMore] = useState(false);
     const [result, setResult] = useState("");
@@ -75,10 +75,6 @@ export default function CategoryCard({category, setCategories}) {
         }, [showMore]);
     }
     
-
-
-
-
     return (
         <Grid item xs={12} sm={10} className="categoryCard" >
             <Typography variant="h5" align="left">
@@ -101,7 +97,8 @@ export default function CategoryCard({category, setCategories}) {
                     <Button component={Link} to={`/upload/${category.id}`} variant="contained" className="detailsBtn">Upload</Button>
                 )
             }
-            
+
+            {/* In uploading mode but the curret user has already uploaded */}
             {
                 mode == 4 &&
                 (
@@ -109,6 +106,7 @@ export default function CategoryCard({category, setCategories}) {
                 )
             }
 
+            {/* Vote Button */}
             {
                 mode == 2 &&
                 (
@@ -116,6 +114,7 @@ export default function CategoryCard({category, setCategories}) {
                 )
             }
             
+            {/* In voting mode but the curret user has already voted */}
             {
                 mode == 5 &&
                 (
@@ -123,6 +122,7 @@ export default function CategoryCard({category, setCategories}) {
                 )
             }
 
+            {/* Finished category */}
             {
                 mode == 3 &&
                 (

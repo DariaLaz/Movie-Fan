@@ -13,9 +13,11 @@ export default function Login({setIsAuth}) {
   
   const handleLogin = async (e) => {
     e.preventDefault()
+
     try{
         var responce = {}
         const csrftoken = getCookie('csrftoken');
+
         await fetch('/api/login/', 
         {
             method: 'POST',
@@ -29,7 +31,6 @@ export default function Login({setIsAuth}) {
         .then(response => response.json()).then(data => responce = data);
 
         const tokenRes = responce.token
-
         const usernameRes = responce.username
 
         if (tokenRes && usernameRes){
@@ -42,50 +43,53 @@ export default function Login({setIsAuth}) {
         else {
           alert("wrong credentials")
         }
+
     } catch (error) {
       alert('Login failed:');
     }
   };
+
   if (localStorage.getItem("username")){
     useEffect(() => {
       navigate("/")
     });
   }
-    return (
-      <Container className="root" maxWidth="md">
-        <Paper className="paper" elevation={4}>
-          <Typography variant="h5" align="center">
-            Login
-          </Typography>
-          <form className="form" onSubmit={handleLogin}>
-            <TextField
-              label="username"
-              fullWidth
-              name="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              margin="normal"
-            />
-            <TextField
-              label="password"
-              fullWidth
-              name="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              margin="normal"
-            />
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-            >
-                Login
-            </Button>
-          </form>
-        </Paper>
-      </Container>
+
+  return (
+    <Container className="root" maxWidth="md">
+      <Paper className="paper" elevation={4}>
+        <Typography variant="h5" align="center">
+          Login
+        </Typography>
+        <form className="form" onSubmit={handleLogin}>
+          <TextField
+            label="username"
+            fullWidth
+            name="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+            margin="normal"
+          />
+          <TextField
+            label="password"
+            fullWidth
+            name="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            margin="normal"
+          />
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+          >
+              Login
+          </Button>
+        </form>
+      </Paper>
+    </Container>
     );
 }

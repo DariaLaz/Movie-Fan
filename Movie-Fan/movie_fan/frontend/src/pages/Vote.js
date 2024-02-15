@@ -17,13 +17,11 @@ export default function Vote() {
 
     const allPoints = 10;
 
-
     useEffect(() => {
         fetch(`/api/category/?category_id=${categoryId}&username=${localStorage.getItem('username')}`)
             .then(response => {
                 if (!response.ok) {
                     alert(`HTTP error! Status: ${response.status}`);
-                    // navigate('/')
                     return;
                 }
                 return response.json();})
@@ -36,7 +34,6 @@ export default function Vote() {
             .then(response => {
                 if (!response.ok) {
                     alert(`HTTP error! Status: ${response.status}`);
-                    // navigate('/')
                     return;
                 }
                 return response.json();})
@@ -86,17 +83,17 @@ export default function Vote() {
                 <Typography component='h4' variant='h5'>
                     Vote for your favorite movie
                 </Typography>
-                <Grid >
-                <form onSubmit={handleSubmit}>
-                    {submitions && submitions.map((submition, index) => (
-                        <VoteCard key={index} submition={submition} handleRatingChange={handleRatingChange} />
-                    ))}
-                    <Grid item xs={12} align="center">
-                        <Button type="submit" variant="contained" className="detailsBtn" color="primary" onClick={handleSubmit}>
-                            Submit
-                        </Button>
-                    </Grid>
-                </form>
+                <Grid>
+                    <form onSubmit={handleSubmit}>
+                        {submitions && submitions.map((submition, index) => (
+                            <VoteCard key={index} submition={submition} handleRatingChange={handleRatingChange} />
+                        ))}
+                        <Grid item xs={12} align="center">
+                            <Button type="submit" variant="contained" className="detailsBtn" color="primary" onClick={handleSubmit}>
+                                Submit
+                            </Button>
+                        </Grid>
+                    </form>
                 </Grid>
             </Paper>
         </Container>
