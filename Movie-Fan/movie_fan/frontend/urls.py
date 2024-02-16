@@ -14,5 +14,4 @@ urlpatterns = [
     path('login/', index),
     path('upload/<int:categoryId>', index),
     path('vote/<int:categoryId>', index),
-    
 ]

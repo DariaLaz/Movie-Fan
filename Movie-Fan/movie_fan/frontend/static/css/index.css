@@ -38,48 +38,6 @@ body {
   background: transparent;
   box-shadow: none;
 }
-/* 
-.Nav ul {
-    color: black;
-    font-weight: bold;
-    list-style-type: none;
-    display: flex;
-    flex-wrap: nowrap;
-    align-items: center;
-    justify-content: right;
-    margin-right: 10%;
-  }
-  
-  .Nav li {
-    padding: 1rem;
-    margin-right: 1rem;
-}
-  
-  .Nav li:hover, 
-  .Nav li:focus {
-    padding: 1rem;
-    border-radius: 20%;
-  }
-  
-  .Nav li a {
-    color: #fff;
-    text-decoration: none;
-  }
-  
-  .Nav li:hover, 
-  .Nav li:focus, 
-  .Nav li:hover a, 
-  .Nav li:focus a  {
-    background-color: #eee;
-    color: #333;
-  }
-  
-  .Nav li:hover a, 
-  .Nav li:focus a {
-    cursor: pointer;
-  } */
-
-  
 
 
 /* CREATE GAME */
@@ -112,8 +70,6 @@ body {
 .button_grid {
     display: 'inline-flex',
 }
-
-
 
 
 /* homepage */
@@ -167,16 +123,10 @@ body {
 
 
 
-
-
-
-
-
-
 /* POP-UP
 ========================================== */
 
-.pop-up {
+/* .pop-up {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -333,4 +283,4 @@ body {
       }
     }
   }
-}
+} */

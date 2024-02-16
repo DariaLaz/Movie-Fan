@@ -5,18 +5,13 @@ from ..models import Game, Category, Movie, Player, PlayerScore, Submition
 
 class TestModels(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='testuser', password='testpassword')
-        self.game = Game.objects.create(
-            name='testgame', description='testdescription', host=self.user)
-        self.category = Category.objects.create(
-            name='testcategory', description='testdescription')
-        self.movie = Movie.objects.create(
-            title='testmovie', description='testdescription', rating=5, genre='testgenre', tumbnail='testtumbnail', link='testlink')
+        self.user = User.objects.create_user(username='testuser', password='testpassword')
+        self.game = Game.objects.create(name='testgame', description='testdescription', host=self.user)
+        self.category = Category.objects.create(name='testcategory', description='testdescription')
+        self.movie = Movie.objects.create(title='testmovie', description='testdescription', rating=5, genre='testgenre', tumbnail='testtumbnail', link='testlink')
         self.player = Player.objects.create(name='testplayer')
         self.playerscore = PlayerScore.objects.create()
-        self.submition = Submition.objects.create(
-            player=self.player, category=self.category, movie=self.movie)
+        self.submition = Submition.objects.create(player=self.player, category=self.category, movie=self.movie)
 
     def test_game_model(self):
         self.assertEqual(self.game.name, 'testgame')

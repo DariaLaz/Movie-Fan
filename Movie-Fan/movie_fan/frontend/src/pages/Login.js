@@ -79,6 +79,7 @@ export default function Login({setIsAuth}) {
             onChange={(e) => setPassword(e.target.value)}
             required
             margin="normal"
+            type="password"
           />
           <Button
             type="submit"
