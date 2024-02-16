@@ -437,13 +437,12 @@ class ScoreView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 class MovieView(APIView):
-    serializer_class = CreateMovieSerializer
     def post(self, request, format=None):
         """Post request are used to create new movie"""
         if not self.request.session.exists(self.request.session.session_key):
             self.request.session.create()
 
-        serializer = self.serializer_class(data=request.data)
+        serializer = CreateMovieSerializer(data=request.data)
 
         if serializer.is_valid():
             title = serializer.data.get('title')
@@ -459,7 +458,6 @@ class MovieView(APIView):
     
     def get(self, request, format=None):
         """Returns all movies or a specific movie if movie_id is provided"""
-        self.serializer_class = MovieSerializer
         movie_id = request.GET.get('movie_id')
         if movie_id is not None:
             """Returns a specific movie"""
