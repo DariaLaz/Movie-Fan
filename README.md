@@ -12,14 +12,14 @@ The game will display the results and the winner of the category. The game will 
 The frontend of the application is built using React. react-router-dom is used for routing and navigation.
 
 ##### Routes
-- / - Home page
-- /login - Login page
-- /register - Register page
-- /games/:id - Game details page
-- /upload/:category_id - Upload movie page
-- /vote/:category_id - Vote page
-- /join - Join game page
-- /create-game - Create game page
+- ````/```` - Home page
+- ````/login```` - Login page
+- ````/register```` - Register page
+- ````/games/:id```` - Game details page
+- ````/upload/:category_id```` - Upload movie page
+- ````/vote/:category_id```` - Vote page
+- ````/join```` - Join game page
+- ````/create-game```` - Create game page
 
 ##### Components
 - Home
@@ -36,55 +36,96 @@ The frontend of the application is built using React. react-router-dom is used f
 The backend of the application is built Django and Django Rest Framework.
 
 ##### Models
+```python
 - Game
+    - code: String
+    - name: String
+    - description: String
+    - host: String
+    - created_at: Date
+    - participants: [Player]
+    - categories: [Category]
+    - mode: Integer
+    - results: JSON
+
 - Player
+    - user_id: String
+    - name: String
+    - my_games: [Game]
+    - score: PlayerScore
+
 - PlayerScore
+    - first_place: Integer
+    - second_place: Integer
+    - third_place: Integer
+    - all_games: Integer
+    - created: Integer
+
 - Category
+    - name: String
+    - description: String
+    - submitions: [Submition]
+    - game_id: Integer
+    - voters: [Player]
+    - mode: Integer
+
 - Submition
+    - player: Player
+    - movie: Movie
+    - category: Category
+    - points: Integer
+
 - Movie
+    - title: String
+    - description: String
+    - rating: Float
+    - link: String
+    - genre: String
+    - tumbnail: String
+```
 
 ##### Routes
 
-- GET /games/ - Get all games
-- POST /games/ - Create a new game
+- ````GET /games/```` - Get all games
+- ````POST /games/ ````- Create a new game
     required fields in body: name, description, host, categories
-- GET /games/:id - Get a game by id
-- PUT /games/:id - Update a game by id
-- DELETE /games/:id - Delete a game by id
-- GET /players/
+- ````GET /games/:id```` - Get a game by id
+- ````PUT /games/:id```` - Update a game by id
+- ````DELETE /games/:id```` - Delete a game by id
+- ````GET /players/````
     if player_id is provided in query, get a player by id
     if name is provided in query, get a player by name
     if no query is provided, get all players
-- POST /players/ - Create a new player
+- ````POST /players/```` - Create a new player
     required fields in body: name
-- GET /categories/ 
+- ````GET /categories/ ````
     if category_id is provided in query, get a category by id
     if no query is provided, get all categories
-- POST /categories/ - Create a new category
+- ````POST /categories/```` - Create a new category
     required fields in body: name, description
-- DELETE /category/ - Delete a category by id
-- GET /movies/ 
+- ````DELETE /category/```` - Delete a category by id
+- ````GET /movies/ ````
     if movie_id is provided in query, get a movie by id
     if no query is provided, get all movies
-- POST /movies/ - Create a new movie
+- ````POST /movies/```` - Create a new movie
     required fields in body: title, description, rating, link, genre, tumbnail
-- GET /submitions/ 
+- ````GET /submitions/```` 
     if submition_id is provided in query, get a submition by id
     if category_id is provided in query, get all submitions by category
     if no query is provided, get all submitions
-- POST /submitions/ - Create a new submition
+- ````POST /submitions/```` - Create a new submition
     required fields in body: username, movie_id, category_id
-- POST /join/ - Create a new join
+- ````POST /join/```` - Create a new join
     required fields in body: code, username
-- GET /score/ 
+- ````GET /score/ ````
     if player_id is provided in query, get a score by player id
     if no query is provided, get all scores
-- POST /login/ - Login
+- ````POST /login/```` - Login
     required fields in body: username, password
-- POST /logout/ - Logout
-- POST /register/ - Register
+- ````POST /logout/```` - Logout
+- ````POST /register/```` - Register
     required fields in body: email, username, password
-- GET /sarp_movie/ 
+- ````GET /sarp_movie/ ````
     if q is provided in query, get a movie by title
     if no query is provided, get empty list
 
