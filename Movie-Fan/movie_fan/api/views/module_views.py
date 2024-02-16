@@ -120,6 +120,26 @@ class GameView(APIView):
         
         return Response({'Bad Request': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
     
+    def delete(self, request, format=None):
+        """Delete request are used to delete game"""
+        game_id = request.data.get('game_id')
+        
+        if game_id is not None:
+            try:
+                game = Game.objects.get(pk=game_id)
+
+                if game.mode != 0:
+                    return Response('Cannot delete game once it has started', status=status.HTTP_400_BAD_REQUEST)
+
+                for category in game.categories.all():
+                    Category.objects.get(pk=category.id).delete()
+
+                game.delete()
+                return Response("Deleted", status=status.HTTP_200_OK)
+            except:
+                return Response("Not found", status=status.HTTP_404_NOT_FOUND)
+        return Response("Not found", status=status.HTTP_404_NOT_FOUND)  
+    
 class JoinGameView(APIView):
     def post(self, request, format=None):
         """Post request are used to join game"""
@@ -162,7 +182,6 @@ class CategoryView(APIView):
         try:
             category_id = request.GET.get('category_id')
             username = request.GET.get('username')
-
             player = Player.objects.get(name=username)
             category = Category.objects.get(pk=category_id)
             game = Game.objects.get(pk=category.game_id)
@@ -210,6 +229,7 @@ class CategoryView(APIView):
     
     def get(self, request, format=None):
         """Get request returns all categories or specific category if category_id is provided in request params"""
+        
         self.serializer_class = CategorySerializer
         category_id = request.GET.get('category_id')
         if category_id is not None:
@@ -243,6 +263,18 @@ class CategoryView(APIView):
         categories = Category.objects.all()
         serializer = CategorySerializer(categories, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def delete(self, request, format=None):
+        """Delete request are used to delete category"""
+        category_id = request.GET.get('category_id')
+        if category_id is not None:
+            try:
+                category = Category.objects.get(pk=category_id)
+                category.delete()
+                return Response("Deleted", status=status.HTTP_200_OK)
+            except:
+                return Response("Not found", status=status.HTTP_404_NOT_FOUND)
+        return Response("Not found", status=status.HTTP_404_NOT_FOUND)
     
 
 class SubmitionView(APIView):    

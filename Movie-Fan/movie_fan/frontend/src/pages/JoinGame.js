@@ -4,8 +4,12 @@ import { useNavigate } from "react-router-dom";
 import getCookie from "../helpers.js"
 
 export default function Join() {
-    const [code, setCode] = useState("");
     const navigate = useNavigate();
+
+    if (!localStorage.getItem('authToken')) {
+        navigate('/login');
+    }
+    const [code, setCode] = useState("");
 
     const handleCodeChange = (e) => {
         const { value } = e.target;

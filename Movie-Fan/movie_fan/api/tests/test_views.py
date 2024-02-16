@@ -8,19 +8,16 @@ class TestViews(TestCase):
     def setUp(self):
         self.client = Client()
         self.games_url = reverse('games')
-        self.game_url = reverse('game', kwargs={'game_id': '1'})
-        self.categories_url = reverse('categories')
-        self.category_url = reverse('category', kwargs={'category_id': '1'})
+        self.category_url = reverse('categories')
         self.players_url = reverse('players')   
         self.join_url = reverse('join')
-
-        # self.score_url = reverse('score')   
+        self.score_url = reverse('score')   
+        self.movies_url = reverse('movies')
+        self.submition_url = reverse('submition')
         # self.login_url = reverse('login')
         # self.logout_url = reverse('logout')
         # self.register_url = reverse('register') 
         # self.sarp_movie_url = reverse('sarp_movie')
-        # self.movies_url = reverse('movies')
-        self.submition_url = reverse('submition')
 
         Game.objects.create( name='Game1', description='Game1 description', host='host1', code='code1')
 
@@ -41,32 +38,31 @@ class TestViews(TestCase):
 
         Game.objects.get(id=1).add_player(Player.objects.get(id=2))
         Game.objects.get(id=1).add_player(Player.objects.get(id=3))
-
-        Submition.objects.create(movie_id=1, category_id= 1, points=10, username='player2')
+        
+        Submition.objects.create(movie=Movie.objects.get(id=1), category=Category.objects.get(id=1), points=10, player=Player.objects.get(id=3))   
 
     def test_games_GET(self): 
         response = self.client.get(self.games_url)
         self.assertEqual(response.status_code, 200)
 
     def test_game_GET_correct(self):
-        ...
-        # response = self.client.get(self.game_url)
-        # response = self.client.get(self.game_url, args=[1])
+        response = self.client.get(self.games_url, {
+            'game_id': 1
+        })
         
-        # print(response.content)
-        # json_data = json.loads(response.content)
+        json_data = json.loads(response.content)
 
-        # game = Game.objects.get(id=1)
-        # serializer = GameSerializer(game)
+        game = Game.objects.get(id=1)
+        serializer = GameSerializer(game)
 
-        # self.assertEqual(response.status_code, 200)
-        # self.assertEqual(json_data[0], serializer.data)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json_data, serializer.data)
 
     def test_game_GET_incorrect(self):
-        ...
-    #     response = self.client.get(self.games_url, args=[2])
-    #     print(response.content)
-        # self.assertEqual(response.status_code, 404)
+        response = self.client.get(self.games_url, {
+            'game_id': 2
+        })
+        self.assertEqual(response.status_code, 404)
 
     def test_game_POST_correct(self):
         response = self.client.post(self.games_url, {
@@ -94,11 +90,8 @@ class TestViews(TestCase):
 
     def test_game_PUT_correct(self):
         ...
-        # response = self.client.put(self.game_url, {
-        #     'name': 'Game2',
-        #     'description': 'Game2 description',
-        #     'host': 'player1',
-        #     'categories': [1]
+        # response = self.client.put(self.games_url, {
+        #     'game_id': 1,
         # })
 
         # json_data = json.loads(response.content)
@@ -128,17 +121,19 @@ class TestViews(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_category_GET_correct(self):
-        ...
-        # response = self.client.get(self.category_url)
-        # self.assertEqual(response.status_code, 200)
+        response = self.client.get(self.category_url, {
+            'category_id': 1
+        })
+        self.assertEqual(response.status_code, 200)
     
     def test_category_GET_incorrect(self):  
-        ...
-        # response = self.client.get(reverse('category', args=[2]))
-        # self.assertEqual(response.status_code, 404)
+        response = self.client.get(self.category_url, {
+            'category_id': 10
+        })
+        self.assertEqual(response.status_code, 404)
 
     def test_category_POST_correct(self):  
-        response = self.client.post(self.categories_url, {
+        response = self.client.post(self.category_url, {
             'name': 'Category3',
             'description': 'Category3 description'
         })
@@ -152,20 +147,19 @@ class TestViews(TestCase):
 
     def test_category_POST_incorrect(self):
         ...
-        # response = self.client.post(self.categories_url, {
-        #     'nam1e': 'Category2',
-        #     'description': 'Category2 description'
+        # response = self.client.post(self.category_url, {
+        #     'name': 'Category3',
         # })
-        # print(response.content)
          
         # self.assertEqual(response.status_code, 400)
 
     def test_category_PUT_correct(self):
         ...
-        # response = self.client.put(self.category_url, {
-        #     'name': 'Category2',
-        #     'description': 'Category2 description'
+        # response = self.client.put(self.category_url, kwargs= {
+        #     'category_id': 1,
+        #     'username': 'player3',
         # })
+        # print(response.content)
 
         # json_data = json.loads(response.content)
         # category = Category.objects.get(id=1)   
@@ -243,10 +237,116 @@ class TestViews(TestCase):
         response = self.client.get(self.submition_url)
         self.assertEqual(response.status_code, 200)
 
+    def test_submition_GET_category_id(self):
+        response = self.client.get(self.submition_url, {
+            'category_id': 1
+        })
+        self.assertEqual(response.status_code, 200)
+
     def test_submition_GET_category_id_correct(self):
-        
+        response = self.client.get(self.submition_url, {
+            'submition_id': 1
+        })
+        self.assertEqual(response.status_code, 200)
+
+    def test_submition_GET_category_id_incorrect(self):
+        response = self.client.get(self.submition_url, {
+            'submition_id': 10
+        })
+        self.assertEqual(response.status_code, 404)
+
+    def test_players_GET(self):
+        response = self.client.get(self.players_url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_players_GET_name(self):
+        response = self.client.get(self.players_url, {
+            'name': 'player1'
+        })
+        self.assertEqual(response.status_code, 200)
+
+    def test_players_GET_wrong_name(self):
+        response = self.client.get(self.players_url, {
+            'name': 'wrong'
+        })
+        self.assertEqual(response.status_code, 404)
+
+    def test_players_GET_id(self):
+        response = self.client.get(self.players_url, {
+            'player_id': 1
+        })
+        self.assertEqual(response.status_code, 200)
+
+    def test_players_GET_wrong_id(self):
+        response = self.client.get(self.players_url, {
+            'player_id': 10
+        })
+        self.assertEqual(response.status_code, 404)
+
+    def test_players_POST_correct(self):
         ...
+        # response = self.client.post(self.players_url, {
+        #     'name': 'user'
+        # })
+        # self.assertEqual(response.status_code, 201)
 
+    def test_players_POST_incorrect(self):
+        ...
+        # response = self.client.post(self.players_url, {
+        #     'name': 'player4'
+        # })
+        # self.assertEqual(response.status_code, 400)
 
+    def test_score_GET(self):
+        response = self.client.get(self.score_url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_score_GET_player_id(self):
+        response = self.client.get(self.score_url, {
+            'player_id': 1
+        })
+        self.assertEqual(response.status_code, 200)
     
-    
+    def test_score_GET_player_id_incorrect(self):
+        response = self.client.get(self.score_url, {
+            'player_id': 10
+        })
+        self.assertEqual(response.status_code, 404)
+
+    def test_movie_GET(self):
+        response = self.client.get(self.movies_url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_movie_GET_id(self):
+        response = self.client.get(self.movies_url, {
+            'movie_id': 1
+        })
+        self.assertEqual(response.status_code, 200)
+
+    def test_movie_GET_id_incorrect(self):
+        response = self.client.get(self.movies_url, {
+            'movie_id': 10
+        })
+        self.assertEqual(response.status_code, 404)
+
+    def test_movie_POST_correct(self):
+        response = self.client.post(self.movies_url, {
+            'title': 'Movie1',
+            'description': 'Movie1 description',
+            'rating': 10,
+            'genre': 'Action',
+            'tumbnail': 'tumbnail',
+            'link': 'link'
+        })
+        self.assertEqual(response.status_code, 201)
+
+    def test_movie_POST_incorrect(self):
+        ...
+    #     response = self.client.post(self.movies_url, {
+    #         'title': 'Movie1',
+    #         'description': 'Movie1 description',
+    #         'rating': 10,
+    #         'genre': 'Action',
+    #         'tumbnail': 'tumbnail'
+    #     })
+    #     self.assertEqual(response.status_code, 400) 

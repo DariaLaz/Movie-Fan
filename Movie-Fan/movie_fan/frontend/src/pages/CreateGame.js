@@ -5,6 +5,11 @@ import { useNavigate } from 'react-router-dom';
 
 export default function CreateGame() {
   const navigate = useNavigate();
+
+  if (!localStorage.getItem('authToken')) {
+    navigate('/login');
+  }
+  
     const [gameData, setGameData] = useState({
       name: '',
       description: '',

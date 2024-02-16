@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Paper, Typography, TextField, Button, Grid } from '@material-ui/core';
-import MovieCard from "./MovieCard";
+import MovieCard from "../components/MovieCard.js";
 import getCookie from "../helpers.js"
 
 export default function UploadMovie() {
+    const navigate = useNavigate();
+
+    if (!localStorage.getItem('authToken')) {
+        navigate('/login');
+    }
     const {categoryId} = useParams();
     const [category, setCategory] = useState(null);
 
     const [movieData, setMovieData] = useState(null);
     const [searchData, setSearchData] = useState(null);
     const [choice, setChoice] = useState(null);
-
-    const navigate = useNavigate();
 
     useEffect(() => {
         fetch(`/api/category/?category_id=${categoryId}&username=${localStorage.getItem('username')}`)

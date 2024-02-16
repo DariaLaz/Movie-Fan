@@ -1,6 +1,6 @@
-import React, { Component, useState } from "react";
+import React, { useState } from "react";
 import HomePage from "./HomePage";
-import { BrowserRouter as Router, Routes, Route, Redirect, useNavigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ReactDOM from 'react-dom/client';
 import CreateGame from "./CreateGame";
 import Join from "./JoinGame";
@@ -22,9 +22,6 @@ export default function App() {
             <Routes>                
                 <Route path="register/" element={<Register setIsAuth={setIsAuth} />} />
                 <Route path="login/" element={<Login setIsAuth={setIsAuth}/>} />
-
-                {!isAuth &&
-                    (<Route path="*" element={<Login setIsAuth={setIsAuth}/>} />)}
 
                 <Route path="/games/:gameId" element={<GameDetails />} />
                 <Route path="/upload/:categoryId" element={<UploadMovie />} />

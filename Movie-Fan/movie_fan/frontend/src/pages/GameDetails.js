@@ -6,6 +6,12 @@ import getCookie from "../helpers.js"
 
 
 export default function GameDetails() {
+    const navigate = useNavigate();
+
+    if (!localStorage.getItem('authToken')) {
+        navigate('/login');
+    }
+    
     const {gameId} = useParams();
     const [game, setGame] = useState(null);
 
@@ -24,7 +30,6 @@ export default function GameDetails() {
     if (!game) {
         return <p>Loading...</p>;
     }
-    console.log(game)
 
 
     const handleStartGame = async (e) => {
@@ -53,10 +58,36 @@ export default function GameDetails() {
             mode: 1
         })
     }
+
+    const handleDeleteGame = async (e) => {
+        e.preventDefault();
+        
+        const result = window.confirm("Confirm delete");
+        if (!result) {
+            return;
+        } 
+        const csrftoken = getCookie('csrftoken');
+
+        const response = await fetch(`/api/games/`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify({
+                game_id: gameId,
+            })
+        });
+
+        if (!response.ok) {
+            alert(`HTTP error! Status: ${response.status}`);
+            return;
+        }
+        navigate('/');
+    }
     
     const getResult = () => {
         const result = []
-        console.log(game.results)
         for (var res in game.results){
             result.push(res + " - " + game.results[res])
         }
@@ -98,6 +129,16 @@ export default function GameDetails() {
                             Start Game
                     </Button>
                 }
+
+                {
+                    game.mode === 0 &&
+                    game.host === localStorage.getItem('username') &&
+                    <Button variant="contained" 
+                    className="detailsBtn" onClick={handleDeleteGame}>
+                            Delete Game
+                    </Button>
+                }
+
                 {
                     game.mode === 0 &&
                     <Typography variant="h6" align="center">

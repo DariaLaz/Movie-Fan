@@ -2,18 +2,22 @@ import React from "react";
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Container, Paper, Typography, TextField, Button, Grid } from '@material-ui/core';
-import VoteCard from "./VoteCard";
+import VoteCard from "../components/VoteCard.js";
 import { useNavigate } from 'react-router-dom';
 import getCookie from "../helpers.js"
 
 
 export default function Vote() {
+    const navigate = useNavigate();
+
+    if (!localStorage.getItem('authToken')) {
+        navigate('/login');
+    }
+
     const {categoryId} = useParams();
     const [category, setCategory] = useState(null);
     const [submitions, setSubmitions] = useState(null);
     const [ratings, setRatings] = useState({});
-
-    const navigate = useNavigate();
 
     const allPoints = 10;
 
@@ -71,7 +75,7 @@ export default function Vote() {
             },
             body: JSON.stringify(ratings)
         });
-        navigate(`/game/$game_id=${category.game_id}`)
+        navigate(`/games/$game_id=${category.game_id}`)
     };
 
     return (

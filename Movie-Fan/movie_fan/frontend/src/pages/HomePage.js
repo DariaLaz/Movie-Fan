@@ -2,8 +2,15 @@ import React, { useState, useEffect } from "react";
 
 import { Container, Paper, Typography, Grid, List, ListItem, ListItemText } from "@material-ui/core";
 import GameCard from "../components/GameCard";
+import { useNavigate } from 'react-router-dom';
 
 export default function HomePage() {
+    const navigate = useNavigate();
+
+    if (!localStorage.getItem('authToken')) {
+        navigate('/login');
+    }
+
     var [player, setPlayer] = useState(null);
 
     useEffect(() => {
