@@ -118,7 +118,7 @@ class GameView(APIView):
 
             return Response(GameSerializer(game).data, status=status.HTTP_201_CREATED)
         
-        return Response({'Bad Request': "1q12"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'Bad Request': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
     
 class JoinGameView(APIView):
     def post(self, request, format=None):
@@ -150,7 +150,7 @@ class JoinGameView(APIView):
                 player.update_score()
                 return Response(GameSerializer(game).data, status=status.HTTP_200_OK)
             
-        return Response({'Bad Request:', serializer.error_messages}, status=status.HTTP_400_BAD_REQUEST)
+        return Response( serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                 
 class CategoryView(APIView):
     serializer_class = CreateCategorySerializer
@@ -197,7 +197,7 @@ class CategoryView(APIView):
         if not self.request.session.exists(self.request.session.session_key):
             self.request.session.create()
 
-        serializer = self.serializer_class(data=request.data)
+        serializer = CreateCategorySerializer(data=request.data)
         
         if serializer.is_valid():
             name = serializer.data.get('name')
@@ -205,6 +205,7 @@ class CategoryView(APIView):
             category = Category(name=name, description=description)
             category.save()
             return Response(CategorySerializer(category).data, status=status.HTTP_201_CREATED)
+        
         return Response({'Bad Request': request}, status=status.HTTP_400_BAD_REQUEST)
     
     def get(self, request, format=None):
@@ -282,9 +283,9 @@ class SubmitionView(APIView):
 
                 return Response(SubmitionSerializer(submition).data, status=status.HTTP_201_CREATED)
             except:
-                return Response({'Bad Request': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response({'Bad Request': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+                return Response('Bad Request', status=status.HTTP_400_BAD_REQUEST)
+            
+        return Response({'Bad Request': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
            
     def get(self, request, format=None):
         """Get request returns all submitions or specific ones if category_id or submition_id is provided in request params"""
