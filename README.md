@@ -7,11 +7,11 @@ The game will display a list of categories and the user will have to select a mo
 Once all participants have uploaded their movies in the category, the game will display the movies that have been uploaded and each user will have to vote spreading 10 points between the movies (downvotes allowed).
 The game will display the results and the winner of the category. The game will continue until all categories have been played. The user with the most points at the end of the game will be the winner.
 
-#### Frontend Documentation
-##### Overview
+## Frontend Documentation
+### Overview
 The frontend of the application is built using React. react-router-dom is used for routing and navigation.
 
-##### Routes
+### Routes
 - ````/```` - Home page
 - ````/login```` - Login page
 - ````/register```` - Register page
@@ -21,7 +21,7 @@ The frontend of the application is built using React. react-router-dom is used f
 - ````/join```` - Join game page
 - ````/create-game```` - Create game page
 
-##### Components
+### Components
 - Home
 - Login
 - Register
@@ -31,11 +31,11 @@ The frontend of the application is built using React. react-router-dom is used f
 - JoinGame
 - CreateGame
 
-#### Backend Documentation
-##### Overview
+## Backend Documentation
+### Overview
 The backend of the application is built Django and Django Rest Framework.
 
-##### Models
+### Models
 ```python
 - Game
     - code: String
@@ -84,7 +84,7 @@ The backend of the application is built Django and Django Rest Framework.
     - tumbnail: String
 ```
 
-##### Routes
+### Routes
 
 - ````GET /games/```` - Get all games
 - ````POST /games/ ````- Create a new game
@@ -128,35 +128,7 @@ The backend of the application is built Django and Django Rest Framework.
 - ````GET /sarp_movie/ ````
     if q is provided in query, get a movie by title
     if no query is provided, get empty list
-
-##### Serializers'
-- GameSerializer
-- PlayerSerializer
-- PlayerScoreSerializer
-- CategorySerializer
-- SubmitionSerializer
-- MovieSerializer
-- VoteSerializer
-- JoinSerializer
-- ScoreSerializer
-- SarpMovieSerializer
-- CategorySerializer
-
-##### Views
-- GameView
-- PlayerView
-- PlayerScoreView
-- CategoryView
-- SubmitionView
-- MovieView
-- VoteView
-- JoinView
-- ScoreView
-- SarpMovieView
-- CategoryView
-- LoginView
-- LogoutView
-- RegisterView
+    
 
 #### Third Party Services
 - The application uses SARP Movie Database API for fetching movie data. 
