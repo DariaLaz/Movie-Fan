@@ -1,8 +1,15 @@
 from django.urls import path
-from .views.module_views import *
 from rest_framework.authtoken.views import obtain_auth_token
-from .views.auth_views import *
 from .views.sarp_views import MovieSarpView
+from .views.auth_views import LoginView, LogoutView, RegisterView
+from .views.model_views.game_view import GameView
+from .views.model_views.category_view import CategoryView
+from .views.model_views.player_view import PlayersView
+from .views.model_views.join_game_view import JoinGameView
+from .views.model_views.score_view import ScoreView
+from .views.model_views.movie_view import MovieView
+from .views.model_views.submition_view import SubmitionView
+
 
 urlpatterns = [
     path('games/', GameView.as_view(), name='games'),

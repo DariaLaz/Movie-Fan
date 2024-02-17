@@ -1,57 +1,62 @@
 import React, { useEffect, useState } from "react";
-import getCookie from "../helpers.js"
-import { Container, Paper, Typography, TextField, Button, Grid } from '@material-ui/core';
+import getCookie from "../helpers.js";
+import {
+  Container,
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  Grid,
+} from "@material-ui/core";
 import { useNavigate } from "react-router-dom";
 
+export default function Login({ setIsAuth }) {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
-export default function Login({setIsAuth}) {
+  const navigate = useNavigate();
 
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-
-  const navigate = useNavigate()
-  
   const handleLogin = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    try{
-        var responce = {}
-        const csrftoken = getCookie('csrftoken');
+    try {
+      var responce = {};
+      const csrftoken = getCookie("csrftoken");
 
-        await fetch('/api/login/', 
-        {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken,},
-            body: JSON.stringify({
-                username: username,
-                password: password,
-            })
-        })
-        .then(response => response.json()).then(data => responce = data);
+      await fetch("/api/login/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrftoken,
+        },
+        body: JSON.stringify({
+          username: username,
+          password: password,
+        }),
+      })
+        .then((response) => response.json())
+        .then((data) => (responce = data));
 
-        const tokenRes = responce.token
-        const usernameRes = responce.username
+      const tokenRes = responce.token;
+      const usernameRes = responce.username;
 
-        if (tokenRes && usernameRes){
-          localStorage.setItem('authToken', tokenRes);
-          localStorage.setItem('username', usernameRes);
+      if (tokenRes && usernameRes) {
+        localStorage.setItem("authToken", tokenRes);
+        localStorage.setItem("username", usernameRes);
 
-          setIsAuth(localStorage.getItem('authToken'))
-          navigate('/')
-        }
-        else {
-          alert("wrong credentials")
-        }
-
+        setIsAuth(localStorage.getItem("authToken"));
+        navigate("/");
+      } else {
+        alert("wrong credentials");
+      }
     } catch (error) {
-      alert('Login failed:');
+      alert("Login failed:");
     }
   };
 
-  if (localStorage.getItem("username")){
+  if (localStorage.getItem("username")) {
     useEffect(() => {
-      navigate("/")
+      navigate("/");
     });
   }
 
@@ -81,16 +86,11 @@ export default function Login({setIsAuth}) {
             margin="normal"
             type="password"
           />
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            fullWidth
-          >
-              Login
+          <Button type="submit" variant="contained" color="primary" fullWidth>
+            Login
           </Button>
         </form>
       </Paper>
     </Container>
-    );
+  );
 }

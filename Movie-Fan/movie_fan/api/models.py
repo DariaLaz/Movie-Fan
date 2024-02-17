@@ -2,6 +2,7 @@ from django.db import models
 import random
 import string
 
+
 def generate_code_for_game():
     """Generates unique code for a game"""
     length = 6
@@ -11,16 +12,19 @@ def generate_code_for_game():
             break
     return code
 
+
 class Game(models.Model):
-    """Model for a game"""	
-    code = models.CharField(max_length=6, default=generate_code_for_game, unique=True)
+    """Model for a game"""
+    code = models.CharField(
+        max_length=6, default=generate_code_for_game, unique=True)
     name = models.CharField(max_length=100)
     description = models.TextField()
     host = models.CharField(max_length=50, unique=False)
     created_at = models.DateTimeField(auto_now_add=True)
     participants = models.ManyToManyField('Player', related_name='games')
     categories = models.ManyToManyField('Category', related_name='games')
-    mode = models.IntegerField(default=0) # 0 - waiting for players, 1 - in progress, 2 - finished
+    # 0 - waiting for players, 1 - in progress, 2 - finished
+    mode = models.IntegerField(default=0)
     results = models.JSONField(default=dict)
 
     def start(self):
@@ -31,8 +35,9 @@ class Game(models.Model):
     def finish(self):
         """Finishes the game, sets the mode to 2 and updates the results of the players"""
         self.mode = 2
-        sortedRes  = sorted(self.results.items(), key=lambda x:x[1], reverse=True)
-        self.results  = dict(sortedRes)    
+        sortedRes = sorted(self.results.items(),
+                           key=lambda x: x[1], reverse=True)
+        self.results = dict(sortedRes)
 
         i = 1
         for key in self.results:
@@ -61,7 +66,7 @@ class Game(models.Model):
         return self.participants.count()
 
     def unlock_next_categories(self):
-        """Unlocks the next categories for uploading"""	
+        """Unlocks the next categories for uploading"""
         categories = self.categories.all()
         for category in categories:
             if category.mode == 0:
@@ -72,20 +77,23 @@ class Game(models.Model):
 
     def __str__(self):
         return self.name
-    
+
+
 class PlayerScore(models.Model):
-    """Model for the score of a player"""	
+    """Model for the score of a player"""
     first_place = models.IntegerField(default=0)
     second_place = models.IntegerField(default=0)
     third_place = models.IntegerField(default=0)
     all_games = models.IntegerField(default=0)
     created = models.IntegerField(default=0)
 
+
 class Player(models.Model):
     """Model for a player"""
     user_id = models.CharField(max_length=50, unique=True, default='')
     name = models.CharField(max_length=50, unique=True)
-    my_games = models.ManyToManyField('Game', related_name='players', default=set)
+    my_games = models.ManyToManyField(
+        'Game', related_name='players', default=set)
     score = models.ForeignKey(PlayerScore, on_delete=models.CASCADE, null=True)
 
     def update_created(self):
@@ -110,7 +118,8 @@ class Player(models.Model):
 
     def __str__(self):
         return self.name
-    
+
+
 class Category(models.Model):
     """Model for a category"""
     name = models.CharField(max_length=50, unique=True)
@@ -118,7 +127,8 @@ class Category(models.Model):
     submitions = models.ManyToManyField('Submition', related_name='categories')
     game_id = models.IntegerField(default=0)
     voters = models.ManyToManyField('Player', default=set)
-    mode = models.IntegerField(default=0) # 0 - not started yet, 1 - in progress uploading, 2 - in progress voting, 3 - finished 
+    # 0 - not started yet, 1 - in progress uploading, 2 - in progress voting, 3 - finished
+    mode = models.IntegerField(default=0)
 
     def num_of_votes(self):
         """Returns the number of votes for the category"""
@@ -127,14 +137,14 @@ class Category(models.Model):
     def has_voted(self, player):
         """Checks if the player has voted for the category"""
         return self.voters.filter(id=player.id).exists()
-    
+
     def add_voter(self, player):
         """Adds a voter for the category"""
         self.voters.add(player)
         self.save()
 
     def start_uploading(self):
-        """Starts uploading for the category, sets the mode to 1""" 
+        """Starts uploading for the category, sets the mode to 1"""
         self.mode = 1
         self.save()
 
@@ -144,7 +154,7 @@ class Category(models.Model):
         self.save()
 
     def finish(self):
-        """Finishes the category, sets the mode to 3""" 
+        """Finishes the category, sets the mode to 3"""
         self.mode = 3
         self.save()
 
@@ -166,17 +176,18 @@ class Category(models.Model):
                 results[submition.movie.title] = 0
             results[submition.movie.title] += submition.points
         return results
-    
+
     def get_submitions(self):
         """Returns the submitions for the category"""
         return self.submitions
-    
+
     def has_submition(self, player):
         """Checks if the player has submition for the category"""
         return self.submitions.filter(player=player).exists()
 
     def __str__(self):
         return self.name
+
 
 class Submition(models.Model):
     """Model for a submition"""
@@ -193,15 +204,15 @@ class Submition(models.Model):
     def __str__(self):
         return str(self.__getattribute__("id"))
 
+
 class Movie(models.Model):
     """Model for a movie"""
     title = models.CharField(max_length=100)
     description = models.TextField()
     rating = models.FloatField(default=0)
-    link = models.CharField(max_length=300 ,default='')
-    genre = models.CharField(max_length=50) #category in sarpApi
+    link = models.CharField(max_length=300, default='')
+    genre = models.CharField(max_length=50)  # category in sarpApi
     tumbnail = models.CharField(max_length=300)
 
     def __str__(self):
         return self.title
-

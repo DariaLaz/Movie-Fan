@@ -29,16 +29,15 @@ body {
 }
 
 .Nav {
-    /* width: 100%; */
-    background-color: rgba(123, 99, 99, 0.6);
-    display: flex;
+  /* width: 100%; */
+  background-color: rgba(123, 99, 99, 0.6);
+  display: flex;
 }
 
-.navContainer{
+.navContainer {
   background: transparent;
   box-shadow: none;
 }
-
 
 /* CREATE GAME */
 .root {
@@ -47,7 +46,7 @@ body {
   display: flex;
   flex-direction: column;
   margin-top: 40px;
-    align-items: center;
+  align-items: center;
 }
 
 .paper {
@@ -57,230 +56,62 @@ body {
   width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center; 
+  align-items: center;
 }
 
 .form {
-  display: 'flex';
-  flex-direction: 'column';
-  align-items: 'center';
+  display: "flex";
+  flex-direction: "column";
+  align-items: "center";
   gap: 2px;
 }
 
 .button_grid {
-    display: 'inline-flex',
+  display: "inline-flex";
 }
-
 
 /* homepage */
 #welcome {
-    margin: 5%;
-    align-items: center;
+  margin: 5%;
+  align-items: center;
 }
 
 .stats {
-    padding: 5%;
+  padding: 5%;
 }
-
 
 /* gameCard */
-.gameCard, .categoryCard {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin: 5%;
-    padding: 5%;
-    border: 1px solid #333;
-    box-shadow: 0px 0px 15px gray;
-    background-color: rgba(123, 99, 99, 0.6);
+.gameCard,
+.categoryCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 5%;
+  padding: 5%;
+  border: 1px solid #333;
+  box-shadow: 0px 0px 15px gray;
+  background-color: rgba(123, 99, 99, 0.6);
 }
 
-
-.gameCardContainer{
-    justify-content: center;
-    margin-top: 10%;
+.gameCardContainer {
+  justify-content: center;
+  margin-top: 10%;
 }
 
-.categoryCardContainer{
-    justify-content: center;
-    margin-top: 5%;
+.categoryCardContainer {
+  justify-content: center;
+  margin-top: 5%;
 }
 
 .detailsBtn {
-    margin-top: 5%;
-    /* background-color: ; */
+  margin-top: 5%;
+  /* background-color: ; */
 }
-
-
 
 .visible {
-  display: 'block',
+  display: "block";
 }
 .hidden {
-  display: 'none',
+  display: "none";
 }
-
-
-
-/* POP-UP
-========================================== */
-
-/* .pop-up {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  
-  overflow-y: auto; 
-  box-shadow: 0px 6px 30px rgba(0,0,0,0.4);
-  visibility: hidden;
-  opacity: 0;
-  z-index: 10;
-  background-color: white;
-  width: 100%;
-  height: 100%;
-  
-  
-  .content {
-    width: 100%;
-    max-width: 900px;
-    overflow: hidden;
-    text-align: center;
-    position: relative;
-    min-height: 100vh;
-    
-    @media (min-width: 768px) {
-      min-height: inherit;
-    }
-    
-    .container {
-      padding: 100px 20px 140px;
-      
-      @media (min-width: 568px) {
-        padding: 50px 20px 80px;
-      }
-      
-      @media (min-width: 768px) {
-        padding: 70px 0px 90px;
-        max-width: 520px;
-        margin: 0 auto;
-      }
-    }
-    
-    .close {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      font-size: 1.1rem;
-      letter-spacing: 0.05rem;
-      color: gray;
-      
-      &:hover {
-        cursor: pointer;
-        color: orange;
-      }
-    }
-    
-    .dots {
-      .dot {
-        position: absolute;
-        border-radius: 100%;
-        z-index: 11;
-        
-        &:nth-of-type(1) {
-          top: -80px;
-          right: -80px;
-          width: 160px;
-          height: 160px;
-          background-color: blue;
-        }
-        
-        &:nth-of-type(2) {
-          bottom: -120px;
-          left: -120px;
-          width: 240px;
-          height: 240px;
-          background-color: orange;
-        }
-        
-        &:nth-of-type(3) {
-          bottom: -50px;
-          right: -50px;
-          width: 100px;
-          height: 100px;
-          background-color: yellow;
-        }
-      }
-    }
-    
-    .title {
-      h1 {
-        text-align: center;
-        color: orange;
-        text-transform: uppercase;
-        font-weight: 900;
-        font-size: 2.8rem;
-        letter-spacing: 0.05rem;
-      }
-    }
-    
-    img {
-      width: 100%;
-      max-width: 220px;
-      display: inline-block;
-      margin: 30px 0 40px 0;
-      opacity: 0;
-      
-    }
-    
-    .subscribe {
-      h1 {
-        font-size: 1.5rem;
-        color: gray;
-        line-height: 130%;
-        letter-spacing: 0.07rem;
-        margin-bottom: 30px;
-        
-        span {
-          color: orange;
-        }
-      }
-      
-      form {
-        overflow: hidden;
-        
-        input {
-          width: 100%;
-          float: left;
-          padding: 15px 20px;
-          text-align: center;
-          font-family: inherit;
-          font-size: 1.1rem;
-          letter-spacing: 0.05rem;
-          outline: 0;
-          
-          &[type=email] {
-            margin-bottom: 15px;
-            border: 1px solid lighten(gray, 50%);
-            
-            &:focus {
-              border-color: gray;
-            }
-          }
-          
-          &[type=submit] {
-            background-color: purple;
-            color: white;
-            border: 1px solid purple;
-            
-            &:hover {
-              cursor: pointer;
-              background-color: darken(purple, 10%);
-              border-color: darken(purple, 10%);
-            }
-          }
-        }
-      }
-    }
-  }
-} */

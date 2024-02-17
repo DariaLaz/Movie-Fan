@@ -12,15 +12,18 @@ class LogoutView(APIView):
         logout(request)
         return Response({"detail": "Successfully logged out"}, status=status.HTTP_200_OK)
 
-    
+
 class LoginView(APIView):
     serializer_class = UserLoginSerializer
+
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data, context={'request': request})
+        serializer = self.serializer_class(
+            data=request.data, context={'request': request})
         if serializer.is_valid():
             try:
                 serializer.validate(request.data)
-                user = User.objects.get(username=serializer.data.get('username'))
+                user = User.objects.get(
+                    username=serializer.data.get('username'))
                 token, created = Token.objects.get_or_create(user=user)
                 return Response({
                     'token': token.key,
@@ -29,14 +32,13 @@ class LoginView(APIView):
                 }, status=status.HTTP_200_OK)
             except:
                 return Response({"detail": "Invalid Credentials"}, status=status.HTTP_401_UNAUTHORIZED)
-           
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        
-    
+
 class RegisterView(APIView):
     serializer_class = UserRegisterSerializer
-    
+
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
