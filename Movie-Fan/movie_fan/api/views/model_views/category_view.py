@@ -13,6 +13,8 @@ class CategoryView(APIView):
         """Put request are used to vote for submitions in category"""
         if not self.request.session.exists(self.request.session.session_key):
             self.request.session.create()
+
+        
         try:
             category_id = request.GET.get('category_id')
             username = request.GET.get('username')
@@ -49,6 +51,7 @@ class CategoryView(APIView):
         if not self.request.session.exists(self.request.session.session_key):
             self.request.session.create()
 
+
         serializer = CreateCategorySerializer(data=request.data)
 
         if serializer.is_valid():
@@ -58,7 +61,7 @@ class CategoryView(APIView):
             category.save()
             return Response(CategorySerializer(category).data, status=status.HTTP_201_CREATED)
 
-        return Response({'Bad Request': request}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request, format=None):
         """Get request returns all categories or specific category if category_id is provided in request params"""
@@ -99,12 +102,13 @@ class CategoryView(APIView):
 
     def delete(self, request, format=None):
         """Delete request are used to delete category"""
-        category_id = request.GET.get('category_id')
-        if category_id is not None:
-            try:
+        try: 
+            category_id = request.data.get('category_id')
+            if category_id is not None:
                 category = Category.objects.get(pk=category_id)
                 category.delete()
                 return Response("Deleted", status=status.HTTP_200_OK)
-            except:
-                return Response("Not found", status=status.HTTP_404_NOT_FOUND)
-        return Response("Not found", status=status.HTTP_404_NOT_FOUND)
+            else:
+                return Response("Not found", status=status.HTTP_404_NOT_FOUND)  
+        except:
+            return Response("Not found", status=status.HTTP_404_NOT_FOUND)

@@ -1,9 +1,14 @@
-
 from django.test import SimpleTestCase
 from django.urls import reverse, resolve
-from ..views.module_views import GameView, PlayersView, JoinGameView, ScoreView, CategoryView, MovieView, SubmitionView
 from ..views.auth_views import LoginView, LogoutView, RegisterView
 from ..views.sarp_views import MovieSarpView
+from ..views.model_views.game_view import GameView
+from ..views.model_views.category_view import CategoryView
+from ..views.model_views.player_view import PlayersView
+from ..views.model_views.join_game_view import JoinGameView
+from ..views.model_views.score_view import ScoreView
+from ..views.model_views.movie_view import MovieView
+from ..views.model_views.submition_view import SubmitionView
 
 
 class TestUrls(SimpleTestCase):

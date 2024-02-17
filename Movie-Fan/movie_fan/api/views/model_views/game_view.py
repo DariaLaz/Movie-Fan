@@ -10,10 +10,10 @@ from ...models import Category, Player
 class GameView(APIView):
     def put(self, request):
         """Put request are used to start game - change game mode"""
-        game_id = request.data.get('game_id')
+        try:
+            game_id = request.data.get('game_id')
 
-        if game_id is not None:
-            try:
+            if game_id is not None:
                 game = Game.objects.get(pk=game_id)
                 if game.mode == 0:
                     if game.num_of_players() < 3:
@@ -25,9 +25,9 @@ class GameView(APIView):
                 if serializer.is_valid():
                     serializer.save()
                     return Response(serializer.data, status=status.HTTP_200_OK)
-            except:
-                return Response("Not found", status=status.HTTP_404_NOT_FOUND)
-        return Response({'Bad Request': ""}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'Bad Request': ""}, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response("Not found", status=status.HTTP_404_NOT_FOUND)
 
     def get(self, request, format=None):
         """Get request returns all games or specific game if game_id is provided in request params"""
@@ -118,10 +118,10 @@ class GameView(APIView):
 
     def delete(self, request, format=None):
         """Delete request are used to delete game"""
-        game_id = request.data.get('game_id')
+        try:
+            game_id = request.data.get('game_id')
 
-        if game_id is not None:
-            try:
+            if game_id is not None:
                 game = Game.objects.get(pk=game_id)
 
                 if game.mode != 0:
@@ -132,6 +132,7 @@ class GameView(APIView):
 
                 game.delete()
                 return Response("Deleted", status=status.HTTP_200_OK)
-            except:
+            else:
                 return Response("Not found", status=status.HTTP_404_NOT_FOUND)
-        return Response("Not found", status=status.HTTP_404_NOT_FOUND)
+        except:
+            return Response("Not found", status=status.HTTP_404_NOT_FOUND)

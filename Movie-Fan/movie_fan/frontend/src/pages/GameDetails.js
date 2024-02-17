@@ -91,9 +91,9 @@ export default function GameDetails() {
   const getResult = () => {
     const result = [];
     for (var res in game.results) {
-      result.push(res + " - " + game.results[res]);
+      result.push("+ " + res + " - " + game.results[res] + " points");
     }
-    return result.join(" ");
+    return result
   };
 
   return (
@@ -109,7 +109,13 @@ export default function GameDetails() {
           {game.participants.length} participant(s)
         </Typography>
 
-        {game.mode === 2 && getResult()}
+        {game.mode === 2 && 
+            getResult().map((res, index) => (
+                <Typography variant="h6" align="center" key={index}>
+                    {res}
+                </Typography>
+            ))
+        }
 
         {game.mode === 0 &&
           game.participants.length < 3 &&

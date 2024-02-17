@@ -2,7 +2,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from ..models import Game, Category, Player, Submition, Movie, PlayerScore
 import json
-from ..serializers.model_serializers import GameSerializer, CategorySerializer, PlayerSerializer, SubmitionSerializer, MovieSerializer
+from ..serializers.model_serializers import GameSerializer, CategorySerializer
 
 
 class TestViews(TestCase):
@@ -90,33 +90,46 @@ class TestViews(TestCase):
 
         self.assertEqual(response.status_code, 400)
 
+    def test_game_PUT_with_less_than_three_players(self):
+        response = self.client.put(self.games_url, json.dumps ({
+            'game_id': 1,
+        }), content_type='application/json')
+        json_data = json.loads(response.content)
+
+        self.assertEqual(json_data, {'Wrong': 'Min 3 players'})
+        self.assertEqual(response.status_code, 400)
+
     def test_game_PUT_correct(self):
-        ...
-        # response = self.client.put(self.games_url, {
-        #     'game_id': 1,
-        # })
+        game = Game.objects.create(
+            name='Game', description='Game description', host='player', code='code')
+        game.add_player(Player.objects.get(id=1))
+        game.add_player(Player.objects.get(id=2))
+        game.add_player(Player.objects.get(id=3))
 
-        # json_data = json.loads(response.content)
-        # game = Game.objects.get(id=1)
-        # serializer = GameSerializer(game)
+        response = self.client.put(self.games_url, json.dumps({
+            'game_id': 2,
+        }), content_type='application/json')
 
-        # self.assertEqual(json_data, serializer.data)
-        # self.assertEqual(response.status_code, 200)
+        json_data = json.loads(response.content)
+        game = Game.objects.get(id=2)
+        serializer = GameSerializer(game)
+
+        self.assertEqual(json_data, serializer.data)
+        self.assertEqual(response.status_code, 200)
 
     def test_game_PUT_incorrect(self):
-        ...
-        # response = self.client.put(self.game_url, {
-        #     'name': 'Game2',
-        #     'description': 'Game2 description',
-        #     'host': 'player1'
-        # })
+        response = self.client.put(self.games_url, json.dumps({
+            'game_id_wrong': 1,
+        }), content_type='application/json')
 
-        # self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 400)
 
     def test_game_DELETE(self):
-        ...
-    #     response = self.client.delete(self.game_url)
-    #     self.assertEqual(response.status_code, 204)
+        response = self.client.delete(self.games_url, json.dumps({
+            'game_id': 1
+        }), content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
 
     def test_categories_GET(self):
         response = self.client.get(reverse('categories'))
@@ -148,41 +161,22 @@ class TestViews(TestCase):
         self.assertEqual(response.status_code, 201)
 
     def test_category_POST_incorrect(self):
-        ...
-        # response = self.client.post(self.category_url, {
-        #     'name': 'Category3',
-        # })
+        response = self.client.post(self.category_url, {
+            'name': 'Category3',
+        })
 
-        # self.assertEqual(response.status_code, 400)
-
-    def test_category_PUT_correct(self):
-        ...
-        # response = self.client.put(self.category_url, kwargs= {
-        #     'category_id': 1,
-        #     'username': 'player3',
-        # })
-        # print(response.content)
-
-        # json_data = json.loads(response.content)
-        # category = Category.objects.get(id=1)
-        # serializer = CategorySerializer(category)
-
-        # self.assertEqual(json_data, serializer.data)
-        # self.assertEqual(response.status_code, 200)
-
-    def test_category_PUT_incorrect(self):
-        ...
-        # response = self.client.put(self.category_url, {
-        #     'nam1e': 'Category2',
-        #     'description': 'Category2 description'
-        # })
-
-        # self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 400)
 
     def test_category_DELETE(self):
-        ...
-        # response = self.client.delete(self.category_url)
-        # self.assertEqual(response.status_code, 204)
+        Category.objects.create(
+            name='Category', description='Category description', game_id='1')
+        
+        response = self.client.delete(self.category_url, json.dumps({
+            'category_id': 2
+        }), content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 200)
 
     def test_players_GET(self):
         response = self.client.get(self.players_url)
@@ -284,20 +278,6 @@ class TestViews(TestCase):
         })
         self.assertEqual(response.status_code, 404)
 
-    def test_players_POST_correct(self):
-        ...
-        # response = self.client.post(self.players_url, {
-        #     'name': 'user'
-        # })
-        # self.assertEqual(response.status_code, 201)
-
-    def test_players_POST_incorrect(self):
-        ...
-        # response = self.client.post(self.players_url, {
-        #     'name': 'player4'
-        # })
-        # self.assertEqual(response.status_code, 400)
-
     def test_score_GET(self):
         response = self.client.get(self.score_url)
         self.assertEqual(response.status_code, 200)
@@ -340,14 +320,3 @@ class TestViews(TestCase):
             'link': 'link'
         })
         self.assertEqual(response.status_code, 201)
-
-    def test_movie_POST_incorrect(self):
-        ...
-    #     response = self.client.post(self.movies_url, {
-    #         'title': 'Movie1',
-    #         'description': 'Movie1 description',
-    #         'rating': 10,
-    #         'genre': 'Action',
-    #         'tumbnail': 'tumbnail'
-    #     })
-    #     self.assertEqual(response.status_code, 400)

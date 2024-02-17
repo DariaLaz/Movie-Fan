@@ -76,6 +76,7 @@ export default function CreateGame() {
 
     var updatedCategories = [];
 
+
     for (const category of gameData.categories) {
       await fetch("/api/category/", {
         method: "POST",
@@ -85,6 +86,8 @@ export default function CreateGame() {
         .then((response) => response.json())
         .then((data) => updatedCategories.push(data.id));
     }
+
+    
 
     const gameDataWithCategories = {
       name: gameData.name,
