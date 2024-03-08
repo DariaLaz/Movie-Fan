@@ -14,7 +14,6 @@ from .views.model_views.submition_view import SubmitionView
 urlpatterns = [
     path('games/', GameView.as_view(), name='games'),
     path('games/<int:game_id>/', GameView.as_view(), name='game'),
-    path('categories/<int:category_id>/', CategoryView.as_view()),
     path('players/', PlayersView.as_view(), name='players'),
     path('join/', JoinGameView.as_view(), name='join'),
     path('score/', ScoreView.as_view(), name='score'),

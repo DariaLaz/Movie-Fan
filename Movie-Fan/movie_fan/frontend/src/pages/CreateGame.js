@@ -9,6 +9,9 @@ import {
 } from "@material-ui/core";
 import { Add } from "@material-ui/icons";
 import { useNavigate } from "react-router-dom";
+import { postNotAuth } from "../Requests";
+import { categoryPath, gamesPath } from "../Paths";
+import { gameDetailsPage } from "../RedirectPages";
 
 export default function CreateGame() {
   const navigate = useNavigate();
@@ -76,38 +79,29 @@ export default function CreateGame() {
 
     var updatedCategories = [];
 
+    try {
+      for (const category of gameData.categories) {
+        await postNotAuth(categoryPath, category)
+          .then((response) => response.json())
+          .then((data) => updatedCategories.push(data.id));
+      }
 
-    for (const category of gameData.categories) {
-      await fetch("/api/category/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(category),
-      })
+      const gameDataWithCategories = {
+        name: gameData.name,
+        description: gameData.description,
+        categories: updatedCategories,
+        host: localStorage.getItem("username"),
+      };
+
+      var id = -1;
+      await postNotAuth(gamesPath, gameDataWithCategories)
         .then((response) => response.json())
-        .then((data) => updatedCategories.push(data.id));
+        .then((data) => (id = data.id));
+
+      navigate(gameDetailsPage(id));
+    } catch (error) {
+      alert(error);
     }
-
-    
-
-    const gameDataWithCategories = {
-      name: gameData.name,
-      description: gameData.description,
-      categories: updatedCategories,
-      host: localStorage.getItem("username"),
-    };
-
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(gameDataWithCategories),
-    };
-
-    var id = -1;
-    await fetch("/api/games/", requestOptions)
-      .then((response) => response.json())
-      .then((data) => (id = data.id));
-
-    navigate(`/games/${id}`);
   };
 
   return (

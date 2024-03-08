@@ -42,9 +42,9 @@ class CategoryView(APIView):
                 if not game.unlock_next_categories():
                     game.finish()
 
-            return Response(GameSerializer(game), status=status.HTTP_200_OK)
-        except:
-            return Response('Bad Request', status=status.HTTP_400_BAD_REQUEST)
+            return Response(GameSerializer(game).data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response('Bad Request', e)
 
     def post(self, request, format=None):
         """Post request are used to create new category"""

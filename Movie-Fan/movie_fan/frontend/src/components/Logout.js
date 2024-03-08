@@ -1,28 +1,22 @@
 import { Button } from "@material-ui/core";
 import React from "react";
-import getCookie from "../helpers";
-import { redirect, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { post } from "../Requests";
+import { logoutPath } from "../Paths";
+import { loginPage } from "../RedirectPages";
 
 export default function Logout({ setIsAuth }) {
   const navigate = useNavigate();
   const handleLogout = async () => {
     try {
-      const csrftoken = getCookie("csrftoken");
-      await fetch("/api/logout/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": csrftoken,
-        },
-        body: "",
-      });
+      await post(logoutPath, "");
 
       localStorage.removeItem("authToken");
       localStorage.removeItem("username");
 
       setIsAuth(localStorage.getItem("authToken"));
 
-      navigate("/login");
+      navigate(loginPage);
     } catch (error) {
       console.error("Logout failed:", error);
     }

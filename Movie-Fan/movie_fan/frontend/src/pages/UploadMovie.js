@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { post, get } from "../Requests";
 import {
   Container,
   Paper,
@@ -9,13 +10,14 @@ import {
   Grid,
 } from "@material-ui/core";
 import MovieCard from "../components/MovieCard.js";
-import getCookie from "../helpers.js";
+import { categoryPath, getPath, moviePath, sarpPath, submitionPath } from "../Paths.js";
+import { homePage, loginPage } from "../RedirectPages.js";
 
 export default function UploadMovie() {
   const navigate = useNavigate();
 
   if (!localStorage.getItem("authToken")) {
-    navigate("/login");
+    navigate(loginPage);
   }
   const { categoryId } = useParams();
   const [category, setCategory] = useState(null);
@@ -25,11 +27,11 @@ export default function UploadMovie() {
   const [choice, setChoice] = useState(null);
 
   useEffect(() => {
-    fetch(
-      `/api/category/?category_id=${categoryId}&username=${localStorage.getItem(
-        "username"
-      )}`
-    )
+    const urlObj = {
+      category_id: categoryId,
+      username: localStorage.getItem("username")
+    }
+    get(getPath(categoryPath, urlObj))
       .then((response) => {
         if (!response.ok) {
           alert(`HTTP error! Status: ${response.status}`);
@@ -42,11 +44,10 @@ export default function UploadMovie() {
   }, [categoryId]);
 
   if (choice) {
-    (async () => {
-      const csrftoken = getCookie("csrftoken");
-      var id = -1;
+    var id = -1;
 
-      const obj = {
+    (async () => {
+      const postMovieObj = {
         title: choice.title,
         description: choice.description ? choice.description : "N/A",
         tumbnail: choice.thumbnail ? choice.thumbnail : "N/A",
@@ -55,36 +56,21 @@ export default function UploadMovie() {
         rating: choice.rating,
       };
 
-      await fetch(`/api/movies/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": csrftoken,
-        },
-        body: JSON.stringify(obj),
-      })
+      await post(moviePath, postMovieObj)
         .then((r) => r.json())
         .then((d) => (id = d.id));
 
-      const requestBody = {
+      const postSubmitionObj = {
         username: localStorage.getItem("username"),
         category_id: categoryId,
         movie_id: id,
       };
 
-      await fetch(`/api/submition/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": csrftoken,
-        },
-        body: JSON.stringify(requestBody),
-      })
+      await post(submitionPath, postSubmitionObj)
         .then((res) => res.json())
         .then((data) => console.log(data));
-
-      navigate(`/category/${categoryId}`);
     })();
+    navigate(homePage);
   }
 
   if (!category) {
@@ -99,7 +85,11 @@ export default function UploadMovie() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    await fetch(`/api/sarp_movie/?q=${searchData}`)
+    const urlObj = {
+      q: searchData,
+    };
+
+    await get(getPath(sarpPath, urlObj))
       .then((response) => response.json())
       .then((data) => setMovieData(data));
   };

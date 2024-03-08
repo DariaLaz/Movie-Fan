@@ -1,6 +1,7 @@
 import { Button, Grid, Typography } from "@material-ui/core";
 import React from "react";
 import { Link } from "react-router-dom";
+import { gameDetailsPage } from "../RedirectPages";
 
 export default function GameCard({ game }) {
   return (
@@ -13,7 +14,7 @@ export default function GameCard({ game }) {
       </Typography>
       <Button
         component={Link}
-        to={`games/${game.id}`}
+        to={gameDetailsPage(game.id)}
         variant="contained"
         className="detailsBtn"
       >

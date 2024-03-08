@@ -1,23 +1,18 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import {
-  Container,
-  Paper,
-  Typography,
-  TextField,
-  Button,
-  Grid,
-} from "@material-ui/core";
+import { Container, Paper, Typography, Button, Grid } from "@material-ui/core";
 import VoteCard from "../components/VoteCard.js";
 import { useNavigate } from "react-router-dom";
-import getCookie from "../helpers.js";
+import { put, get } from "../Requests.js";
+import { categoryPath, getPath, submitionPath } from "../Paths.js";
+import { gameDetailsPage, loginPage } from "../RedirectPages.js";
 
 export default function Vote() {
   const navigate = useNavigate();
 
   if (!localStorage.getItem("authToken")) {
-    navigate("/login");
+    navigate(loginPage);
   }
 
   const { categoryId } = useParams();
@@ -28,11 +23,11 @@ export default function Vote() {
   const allPoints = 10;
 
   useEffect(() => {
-    fetch(
-      `/api/category/?category_id=${categoryId}&username=${localStorage.getItem(
-        "username"
-      )}`
-    )
+    const urlObj = {
+      category_id: categoryId,
+      username: localStorage.getItem("username"),
+    };
+    get(getPath(categoryPath, urlObj))
       .then((response) => {
         if (!response.ok) {
           alert(`HTTP error! Status: ${response.status}`);
@@ -45,7 +40,10 @@ export default function Vote() {
   }, [categoryId]);
 
   useEffect(() => {
-    fetch(`/api/submition/?category_id=${categoryId}`)
+    const urlObj = {
+      category_id: categoryId,
+    };
+    get(getPath(submitionPath, urlObj))
       .then((response) => {
         if (!response.ok) {
           alert(`HTTP error! Status: ${response.status}`);
@@ -76,25 +74,15 @@ export default function Vote() {
       alert("Please rate all movies between 0 and 10");
       return;
     }
-    const csrftoken = getCookie("csrftoken");
 
-    const obj = {
-      ratings: ratings,
+    const urlObj = {
+      category_id: categoryId,
+      username: localStorage.getItem("username"),
     };
-    await fetch(
-      `/api/category/?category_id=${categoryId}&username=${localStorage.getItem(
-        "username"
-      )}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": csrftoken,
-        },
-        body: JSON.stringify(ratings),
-      }
-    );
-    navigate(`/games/${category.game_id}`);
+
+    await put(getPath(categoryPath, urlObj), ratings);
+
+    navigate(gameDetailsPage(category.game_id));
   };
 
   return (

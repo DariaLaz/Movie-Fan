@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import getCookie from "../helpers";
+import { post } from "../Requests";
+import { playerPath, registerPath } from "../Paths";
+
 import {
   Container,
   Paper,
@@ -9,6 +11,7 @@ import {
 } from "@material-ui/core";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { homePage, loginPage } from "../RedirectPages";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -21,40 +24,32 @@ export default function Register() {
     e.preventDefault();
     try {
       var responce = {};
-      const csrftoken = getCookie("csrftoken");
-      await fetch("/api/register/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": csrftoken,
-        },
-        body: JSON.stringify({
-          username: username,
-          password: password,
-          email: email,
-        }),
-      })
+
+      const registerObj = {
+        username: username,
+        password: password,
+        email: email,
+      };
+
+      await post(registerPath, registerObj)
         .then((response) => response.json())
         .then((data) => (responce = data));
-      await fetch("/api/players/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": csrftoken,
-        },
-        body: JSON.stringify({
-          name: username,
-        }),
-      }).then((response) => response.json());
-      navigate("/login");
+
+      const postPlayerObj = {
+        name: username,
+      };
+
+      await post(playerPath, postPlayerObj).then((response) => response.json());
+
+      navigate(loginPage);
     } catch (error) {
-      alert("Register failed:");
+      alert("Register failed:" + error);
     }
   };
 
   if (localStorage.getItem("username")) {
     useEffect(() => {
-      navigate("/");
+      navigate(homePage);
     });
   }
 

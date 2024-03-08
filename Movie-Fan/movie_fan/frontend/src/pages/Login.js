@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
-import getCookie from "../helpers.js";
+import { post } from "../Requests";
+
 import {
   Container,
   Paper,
   Typography,
   TextField,
   Button,
-  Grid,
 } from "@material-ui/core";
 import { useNavigate } from "react-router-dom";
+import { loginPath } from "../Paths";
+import { homePage } from "../RedirectPages";
 
 export default function Login({ setIsAuth }) {
   const [username, setUsername] = useState("");
@@ -21,19 +23,13 @@ export default function Login({ setIsAuth }) {
 
     try {
       var responce = {};
-      const csrftoken = getCookie("csrftoken");
 
-      await fetch("/api/login/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": csrftoken,
-        },
-        body: JSON.stringify({
-          username: username,
-          password: password,
-        }),
-      })
+      const loginObj = {
+        username: username,
+        password: password,
+      };
+
+      await post(loginPath, loginObj)
         .then((response) => response.json())
         .then((data) => (responce = data));
 
@@ -45,18 +41,18 @@ export default function Login({ setIsAuth }) {
         localStorage.setItem("username", usernameRes);
 
         setIsAuth(localStorage.getItem("authToken"));
-        navigate("/");
+        navigate(homePage);
       } else {
         alert("wrong credentials");
       }
     } catch (error) {
-      alert("Login failed:");
+      alert("Login failed:" + error);
     }
   };
 
   if (localStorage.getItem("username")) {
     useEffect(() => {
-      navigate("/");
+      navigate(homePage);
     });
   }
 

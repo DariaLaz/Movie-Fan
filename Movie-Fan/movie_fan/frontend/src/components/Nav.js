@@ -1,6 +1,13 @@
 import React from "react";
 import { AppBar, Toolbar, Typography, Link } from "@material-ui/core";
 import Logout from "./Logout";
+import {
+  createGamePage,
+  homePage,
+  joinPage,
+  loginPage,
+  registerPage,
+} from "../RedirectPages";
 
 export default function Nav({ isAuth, setIsAuth }) {
   return (
@@ -10,12 +17,16 @@ export default function Nav({ isAuth, setIsAuth }) {
 
         {!isAuth && (
           <div style={{ marginLeft: "auto" }}>
-            <Link href="\login" color="inherit" style={{ marginRight: "20px" }}>
+            <Link
+              href={loginPage}
+              color="inherit"
+              style={{ marginRight: "20px" }}
+            >
               LOGIN
             </Link>
 
             <Link
-              href="\register"
+              href={registerPage}
               color="inherit"
               style={{ marginRight: "20px" }}
             >
@@ -26,19 +37,27 @@ export default function Nav({ isAuth, setIsAuth }) {
 
         {isAuth && (
           <div style={{ marginLeft: "auto" }}>
-            <Link href="/" color="inherit" style={{ marginRight: "20px" }}>
+            <Link
+              href={homePage}
+              color="inherit"
+              style={{ marginRight: "20px" }}
+            >
               Home
             </Link>
 
             <Link
-              href="/create-game"
+              href={createGamePage}
               color="inherit"
               style={{ marginRight: "20px" }}
             >
               Create game
             </Link>
 
-            <Link href="/join" color="inherit" style={{ marginRight: "20px" }}>
+            <Link
+              href={joinPage}
+              color="inherit"
+              style={{ marginRight: "20px" }}
+            >
               Join
             </Link>
 

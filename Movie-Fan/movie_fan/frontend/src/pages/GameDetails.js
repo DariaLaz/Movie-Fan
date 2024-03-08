@@ -2,24 +2,26 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Paper, Typography, Grid, Button } from "@material-ui/core";
 import CategoryCard from "../components/CategotyCard";
-import getCookie from "../helpers.js";
+import { put, del } from "../Requests.js";
+import { gamesPath, getPath } from "../Paths.js";
+import { homePage, loginPage } from "../RedirectPages.js";
 
 export default function GameDetails() {
   const navigate = useNavigate();
 
   if (!localStorage.getItem("authToken")) {
-    navigate("/login");
+    navigate(loginPage);
   }
 
   const { gameId } = useParams();
   const [game, setGame] = useState(null);
 
   useEffect(() => {
-    fetch(
-      `/api/games/?game_id=${gameId}&username=${localStorage.getItem(
-        "username"
-      )}`
-    )
+    const urlObj = {
+      game_id: gameId,
+      username: localStorage.getItem("username"),
+    };
+    fetch(getPath(gamesPath, urlObj))
       .then((response) => {
         if (!response.ok) {
           alert(`HTTP error! Status: ${response.status}`);
@@ -37,18 +39,11 @@ export default function GameDetails() {
 
   const handleStartGame = async (e) => {
     e.preventDefault();
-    const csrftoken = getCookie("csrftoken");
 
-    const response = await fetch(`/api/games/`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": csrftoken,
-      },
-      body: JSON.stringify({
-        game_id: gameId,
-      }),
-    });
+    const getGameObj = {
+      game_id: gameId,
+    };
+    const response = await put(gamesPath, getGameObj);
 
     if (!response.ok) {
       alert(`HTTP error! Status: ${response.status}`);
@@ -68,24 +63,17 @@ export default function GameDetails() {
     if (!result) {
       return;
     }
-    const csrftoken = getCookie("csrftoken");
 
-    const response = await fetch(`/api/games/`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": csrftoken,
-      },
-      body: JSON.stringify({
-        game_id: gameId,
-      }),
-    });
+    const deleteGameObj = {
+      game_id: gameId,
+    };
+    const response = await del(gamesPath, deleteGameObj);
 
     if (!response.ok) {
       alert(`HTTP error! Status: ${response.status}`);
       return;
     }
-    navigate("/");
+    navigate(homePage);
   };
 
   const getResult = () => {
@@ -93,7 +81,7 @@ export default function GameDetails() {
     for (var res in game.results) {
       result.push("+ " + res + " - " + game.results[res] + " points");
     }
-    return result
+    return result;
   };
 
   return (
@@ -109,13 +97,12 @@ export default function GameDetails() {
           {game.participants.length} participant(s)
         </Typography>
 
-        {game.mode === 2 && 
-            getResult().map((res, index) => (
-                <Typography variant="h6" align="center" key={index}>
-                    {res}
-                </Typography>
-            ))
-        }
+        {game.mode === 2 &&
+          getResult().map((res, index) => (
+            <Typography variant="h6" align="center" key={index}>
+              {res}
+            </Typography>
+          ))}
 
         {game.mode === 0 &&
           game.participants.length < 3 &&

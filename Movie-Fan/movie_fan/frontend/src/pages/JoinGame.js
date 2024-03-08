@@ -8,13 +8,15 @@ import {
   Container,
 } from "@material-ui/core";
 import { useNavigate } from "react-router-dom";
-import getCookie from "../helpers.js";
+import { post } from "../Requests";
+import { joinPath } from "../Paths";
+import { gameDetailsPage, loginPage } from "../RedirectPages";
 
 export default function Join() {
   const navigate = useNavigate();
 
   if (!localStorage.getItem("authToken")) {
-    navigate("/login");
+    navigate(loginPage);
   }
   const [code, setCode] = useState("");
 
@@ -23,28 +25,19 @@ export default function Join() {
     setCode(value);
   };
 
-  const handleEnterGame = (e) => {
-    const csrftoken = getCookie("csrftoken");
+  const handleEnterGame = async (e) => {
+    const joinObj = {
+      code: code,
+      username: localStorage.getItem("username"),
+    };
 
-    (async () => {
-      await fetch("/api/join/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": csrftoken,
-        },
-        body: JSON.stringify({
-          code: code,
-          username: localStorage.getItem("username"),
-        }),
-      }).then((response) => {
-        if (response.ok) {
-          response.json().then((data) => navigate(`/games/${data.id}`));
-        } else {
-          alert("Invalid code");
-        }
-      });
-    })();
+    await post(joinPath, joinObj).then((response) => {
+      if (response.ok) {
+        response.json().then((data) => navigate(gameDetailsPage(data.id)));
+      } else {
+        alert("Invalid code");
+      }
+    });
   };
 
   return (

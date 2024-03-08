@@ -11,18 +11,24 @@ import {
 } from "@material-ui/core";
 import GameCard from "../components/GameCard";
 import { useNavigate } from "react-router-dom";
+import { get } from "../Requests";
+import { getPath, playerPath } from "../Paths";
+import { loginPage } from "../RedirectPages";
 
 export default function HomePage() {
   const navigate = useNavigate();
 
   if (!localStorage.getItem("authToken")) {
-    navigate("/login");
+    navigate(loginPage);
   }
 
   var [player, setPlayer] = useState(null);
 
   useEffect(() => {
-    fetch(`/api/players/?name=${localStorage.getItem("username")}`)
+    const urlObj = {
+      name: localStorage.getItem("username"),
+    };
+    get(getPath(playerPath, urlObj))
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
