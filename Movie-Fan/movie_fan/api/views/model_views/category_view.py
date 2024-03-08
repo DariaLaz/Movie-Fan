@@ -14,7 +14,6 @@ class CategoryView(APIView):
         if not self.request.session.exists(self.request.session.session_key):
             self.request.session.create()
 
-        
         try:
             category_id = request.GET.get('category_id')
             username = request.GET.get('username')
@@ -50,7 +49,6 @@ class CategoryView(APIView):
         """Post request are used to create new category"""
         if not self.request.session.exists(self.request.session.session_key):
             self.request.session.create()
-
 
         serializer = CreateCategorySerializer(data=request.data)
 
@@ -102,13 +100,13 @@ class CategoryView(APIView):
 
     def delete(self, request, format=None):
         """Delete request are used to delete category"""
-        try: 
+        try:
             category_id = request.data.get('category_id')
             if category_id is not None:
                 category = Category.objects.get(pk=category_id)
                 category.delete()
                 return Response("Deleted", status=status.HTTP_200_OK)
             else:
-                return Response("Not found", status=status.HTTP_404_NOT_FOUND)  
+                return Response("Not found", status=status.HTTP_404_NOT_FOUND)
         except:
             return Response("Not found", status=status.HTTP_404_NOT_FOUND)

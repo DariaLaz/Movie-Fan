@@ -12,7 +12,6 @@ class GameView(APIView):
         """Put request are used to start game - change game mode"""
         try:
             game_id = request.data.get('game_id')
-            # game_id = request.GET.get('game_id')
 
             if game_id is not None:
                 game = Game.objects.get(pk=game_id)
